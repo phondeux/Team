@@ -1,0 +1,9 @@
+name: Team
+main: com.java.phondeux.team.team
+version: 1.0
+author: phondeux, generalportion
+
+commands:
+  teams:
+    description: All of the Team commands
+    usage: See documentation.
