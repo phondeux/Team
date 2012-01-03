@@ -1,51 +1,35 @@
 package com.java.phondeux.team;
 
-import java.util.ArrayList;
-
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class TeamCommand implements CommandExecutor {
-	private final Team plugin;
-
 	public TeamCommand(Team plugin) {
-		this.plugin = plugin;
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		String chatString = " ";
-		for(int i=0; i<args.length; i++) {
-		    chatString = chatString + args[i] + " ";
-		}
-		chatString = chatString.trim();
+		// Team commands
+		//      create		- create a team
+		//		disband		- disband a team
+		//		invite		- invite a player to a team (admin or mod only)
+		//		deinvite	- de-invite a player
+		//		description - set team description
+		//		join		- join a team
+		//		leave		- leave a team
+		//		kick		- kick a player from a team
+		//		open		- toggle team open enrollment
+		//		close		- toggle team open enrollment
+		//		promote		- team member -> mod -> owner
+		//		demote		- mod -> team member
+		//		chat		- toggle all chat to be team-only
+		//					  /tc will also be used to team chat for convenience
+		
 		Player thePlayer = (Player)sender;
 
-		if (thePlayer.hasPermission("adminchat")) {
-			ArrayList<Player> onlineAdmins = getOnlineAdmins();
-			for (Player player : onlineAdmins) {
-				player.sendMessage("<" + ChatColor.RED + thePlayer.getName() + ChatColor.WHITE + "> " + ChatColor.GOLD + chatString);
-			}
-			plugin.log.info("[ADMIN] " + thePlayer.getDisplayName() + ": " + chatString);
-		} else {
-			thePlayer.sendMessage("This command isn't available to you.");
-			return true;
-		}
-		return true;
-	}
-
-	private ArrayList<Player> getOnlineAdmins() {
-		Player[] Players = plugin.getServer().getOnlinePlayers();
-		ArrayList<Player> onlineAdmins = new ArrayList<Player>(); 
 		
-		for (Player player : Players){
-			if (player.hasPermission("adminchat")) {
-				onlineAdmins.add(player);
-			}
-		}
-		return onlineAdmins;
+		return true;
 	}
 }
