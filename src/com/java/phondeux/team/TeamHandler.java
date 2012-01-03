@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 public class TeamHandler {
-
 	private final ConnectionManager cm;
 	private HashMap<String, Integer> idbind;
 	
@@ -31,6 +30,10 @@ public class TeamHandler {
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
+		cm.prepareStatement("setTeamDescription", "insert into teams (desc) values (?) where id=?;");
+		cm.prepareStatement("getTeamDescription", "select desc from teams where id=?;");
+		cm.prepareStatement("setTeamMotd", "insert into teams (motd) values (?) where id=?;");
+		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
 	}
 	
 	private void populateTable() throws SQLException {
@@ -86,12 +89,22 @@ public class TeamHandler {
 	 * @throws SQLException
 	 */
 	public boolean teamDelete(String name) throws SQLException {
-		if (!teamExists(name)) return false;
+		return teamDelete(teamGetID(name));
+	}
+	
+	/**
+	 * Delete a team
+	 * @param id the id of the team
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean teamDelete(Integer id) throws SQLException {
+		if (!teamExists(id)) return false;
 		
-		cm.getPreparedStatement("deleteTeam").setInt(1, teamGetID(name));
+		cm.getPreparedStatement("deleteTeam").setInt(1, id);
 		cm.executePreparedUpdate("deleteTeam");
 		
-		idbind.remove(name.toLowerCase());
+		idbind.keySet().remove(id);
 		
 		return true;
 	}
@@ -110,8 +123,18 @@ public class TeamHandler {
 	 * @param name the name of the team
 	 * @return true if exists
 	 */
-	public boolean teamExists(String name) throws SQLException {
+	public boolean teamExists(String name) {
 		return idbind.containsKey(name.toLowerCase());
+	}
+	
+	/**
+	 * Check if a team exists
+	 * @param id the id of the team
+	 * @return true if exists
+	 */
+	public boolean teamExists(Integer id) {
+		if (id == null) return false;
+		return idbind.containsValue(id);
 	}
 	
 	/**
@@ -122,7 +145,24 @@ public class TeamHandler {
 	 * @throws SQLException
 	 */
 	public boolean teamSetDescription(String name, String description) throws SQLException {
-		return false;
+		return teamSetDescription(teamGetID(name), description);
+	}
+	
+	/**
+	 * Set the description for a team
+	 * @param id the id of the team
+	 * @param description the description of the team
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean teamSetDescription(Integer id, String description) throws SQLException {
+		if (!teamExists(id)) return false;
+		
+		cm.getPreparedStatement("setTeamDescription").setString(1, description);
+		cm.getPreparedStatement("setTeamDescription").setInt(2, id);
+		cm.executePreparedUpdate("setTeamDescription");
+		
+		return true;
 	}
 	
 	/**
@@ -132,7 +172,22 @@ public class TeamHandler {
 	 * @throws SQLException
 	 */
 	public String teamGetDescription(String name) throws SQLException {
-		return null;
+		return teamGetDescription(teamGetID(name));
+	}
+	
+	/**
+	 * Get the description of a team
+	 * @param id the id of the team
+	 * @return the description, or null if unsuccessful
+	 * @throws SQLException
+	 */
+	public String teamGetDescription(Integer id) throws SQLException {
+		if (!teamExists(id)) return null;
+		cm.getPreparedStatement("getTeamDescription").setInt(1, id);
+		ResultSet rs = cm.executePreparedQuery("getTeamDescription");
+		String desc = rs.getString("desc");
+		rs.close();
+		return desc;
 	}
 	
 	/**
@@ -143,7 +198,24 @@ public class TeamHandler {
 	 * @throws SQLException
 	 */
 	public boolean teamSetMotd(String name, String motd) throws SQLException {
-		return false;
+		return teamSetMotd(teamGetID(name), motd);
+	}
+	
+	/**
+	 * Set the message of the day for a team
+	 * @param id the id of the team
+	 * @param motd the motd of the team
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean teamSetMotd(Integer id, String motd) throws SQLException {
+		if (!teamExists(id)) return false;
+
+		cm.getPreparedStatement("setTeamMotd").setString(1, motd);
+		cm.getPreparedStatement("setTeamMotd").setInt(2, id);
+		cm.executePreparedUpdate("setTeamMotd");
+		
+		return true;
 	}
 	
 	/**
@@ -151,8 +223,23 @@ public class TeamHandler {
 	 * @param name the name of the team
 	 * @return the motd, or null if unsuccessful
 	 */
-	public String teamGetMotd(String name) {
-		return null;
+	public String teamGetMotd(String name) throws SQLException {
+		return teamGetMotd(teamGetID(name));
+	}
+	
+	/**
+	 * Get the message of the day for a team
+	 * @param id the id of the team
+	 * @return the motd, or null if unsuccessful
+	 */
+	public String teamGetMotd(Integer id) throws SQLException {
+		if (!teamExists(id)) return null;
+		
+		cm.getPreparedStatement("getTeamMotd").setInt(1, id);
+		ResultSet rs = cm.executePreparedQuery("getTeamMotd");
+		String motd = rs.getString("motd");
+		rs.close();
+		return motd;
 	}
 	
 	//---------------------Player methods
