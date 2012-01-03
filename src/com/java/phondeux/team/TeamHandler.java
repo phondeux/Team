@@ -22,15 +22,15 @@ public class TeamHandler {
 	}
 	
 	private void initTables() throws SQLException {
-		cm.executeUpdate("create table if not exists teams (id INTEGER PRIMARY KEY, name CHAR(8), namelc CHAR(8), desc TEXT, motd TEXT)");
+		cm.executeUpdate("create table if not exists teams (id INTEGER PRIMARY KEY, name CHAR(8), desc TEXT, motd TEXT)");
 		cm.executeUpdate("create table if not exists players (id INTEGER PRIMARY KEY, name TEXT, teamid INTEGER);");
 	}
 	
 	private void initStatements() throws SQLException {
-		cm.prepareStatement("createTeam", "insert into teams (name, namelc) values (?, ?);");
+		cm.prepareStatement("createTeam", "insert into teams (name) values (?);");
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
-		cm.prepareStatement("getTeam", "select * from teams where namelc=?;");
-		cm.prepareStatement("deleteTeam", "delete from teams where namelc=?;");
+		cm.prepareStatement("getTeam", "select * from teams where id=?;");
+		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
 	}
 	
 	private void populateTable() throws SQLException {
@@ -39,7 +39,7 @@ public class TeamHandler {
 		int id;
 		
 		do {
-			name = rs.getString("namelc");
+			name = rs.getString("name").toLowerCase();
 			id = rs.getInt("id");
 			idbind.put(name, id);
 		} while (rs.next());
@@ -61,14 +61,13 @@ public class TeamHandler {
 	/**
 	 * Create a team
 	 * @param name the name of the team
-	 * @return true if successful
+	 * @return the team id if successful, otherwise -1
 	 * @throws SQLException
 	 */
-	public boolean teamCreate(String name) throws SQLException {
-		if (teamExists(name)) return false;
+	public int teamCreate(String name) throws SQLException {
+		if (teamExists(name)) return -1;
 		
 		cm.getPreparedStatement("createTeam").setString(1, name);
-		cm.getPreparedStatement("createTeam").setString(2, name.toLowerCase());
 		cm.executePreparedUpdate("createTeam");
 		
 		ResultSet rs = cm.executePreparedQuery("getLatestTeam");
@@ -77,7 +76,7 @@ public class TeamHandler {
 		
 		idbind.put(name.toLowerCase(), id);
 		
-		return true;
+		return id;
 	}
 	
 	/**
@@ -89,7 +88,7 @@ public class TeamHandler {
 	public boolean teamDelete(String name) throws SQLException {
 		if (!teamExists(name)) return false;
 		
-		cm.getPreparedStatement("deleteTeam").setString(1, name.toLowerCase());
+		cm.getPreparedStatement("deleteTeam").setInt(1, teamGetID(name));
 		cm.executePreparedUpdate("deleteTeam");
 		
 		idbind.remove(name.toLowerCase());
@@ -103,7 +102,7 @@ public class TeamHandler {
 	 * @return the id of the team, or null if the team doesn't exist
 	 */
 	public Integer teamGetID(String name) {
-		return idbind.get(name);
+		return idbind.get(name.toLowerCase());
 	}
 	
 	/**
