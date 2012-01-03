@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>craftbukkit-1.0.1-R1.jar</name>
+			<type>1</type>
+			<locationURI>WORKSPACE_LOC/craftbukkit-1.0.1-R1.jar</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
