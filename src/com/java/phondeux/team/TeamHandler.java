@@ -39,7 +39,7 @@ public class TeamHandler {
 	}
 	
 	private void populateMap() throws SQLException {
-		ResultSet rs = cm.executeQuery("select * from teams");
+		ResultSet rs = cm.executeQuery("select * from teams;");
 		String name;
 		int id;
 		
