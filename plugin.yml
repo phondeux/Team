@@ -1,5 +1,5 @@
 name: Team
-main: com.java.phondeux.team.team
+main: com.java.phondeux.team.Team
 version: 1.0
 author: phondeux, generalportion
 
