@@ -2,18 +2,19 @@ package com.java.phondeux.team;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TeamHandler {
 	private final ConnectionManager cm;
-	private HashMap<String, Integer> idbind;
+	private HashMap<String, Integer> idbindteam;
 	
-	public TeamHandler(Team parent) throws SQLException, ClassNotFoundException {
-		  cm = new ConnectionManager("team.db");
-		  idbind = new HashMap<String, Integer>();
+	public TeamHandler(Team parent, String database, String user, String password) throws SQLException, ClassNotFoundException {
+		  cm = new ConnectionManager(database, user, password);
+		  idbindteam = new HashMap<String, Integer>();
 		  initTables();
 		  initStatements();
-		  populateTable();
+		  populateMap();
 	}
 	
 	public ConnectionManager ConnectionManager() {
@@ -34,9 +35,10 @@ public class TeamHandler {
 		cm.prepareStatement("getTeamDescription", "select desc from teams where id=?;");
 		cm.prepareStatement("setTeamMotd", "insert into teams (motd) values (?) where id=?;");
 		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
+		cm.prepareStatement("getTeamList", "select name from teams;");
 	}
 	
-	private void populateTable() throws SQLException {
+	private void populateMap() throws SQLException {
 		ResultSet rs = cm.executeQuery("select * from teams");
 		String name;
 		int id;
@@ -44,7 +46,7 @@ public class TeamHandler {
 		do {
 			name = rs.getString("name").toLowerCase();
 			id = rs.getInt("id");
-			idbind.put(name, id);
+			idbindteam.put(name, id);
 		} while (rs.next());
 		
 		rs.close();
@@ -62,6 +64,27 @@ public class TeamHandler {
 	//---------------------Team methods
 	
 	/**
+	 * Gets a team
+	 * @param name the name of the team
+	 * @return a resultset containing all columns
+	 * @throws SQLException
+	 */
+	public ResultSet teamGet(String name) throws SQLException {
+		return (teamGet(teamGetID(name)));
+	}
+	
+	/**
+	 * Gets a team
+	 * @param id the id of the team
+	 * @return a resultset containing all columns
+	 * @throws SQLException
+	 */
+	public ResultSet teamGet(Integer id) throws SQLException {
+		cm.getPreparedStatement("getTeam").setInt(1, id);
+		return cm.executePreparedQuery("getTeam");
+	}
+	
+	/**
 	 * Create a team
 	 * @param name the name of the team
 	 * @return the team id if successful, otherwise -1
@@ -77,7 +100,7 @@ public class TeamHandler {
 		int id = rs.getInt("id");
 		rs.close();
 		
-		idbind.put(name.toLowerCase(), id);
+		idbindteam.put(name.toLowerCase(), id);
 		
 		return id;
 	}
@@ -104,7 +127,7 @@ public class TeamHandler {
 		cm.getPreparedStatement("deleteTeam").setInt(1, id);
 		cm.executePreparedUpdate("deleteTeam");
 		
-		idbind.keySet().remove(id);
+		idbindteam.keySet().remove(id);
 		
 		return true;
 	}
@@ -115,7 +138,7 @@ public class TeamHandler {
 	 * @return the id of the team, or null if the team doesn't exist
 	 */
 	public Integer teamGetID(String name) {
-		return idbind.get(name.toLowerCase());
+		return idbindteam.get(name.toLowerCase());
 	}
 	
 	/**
@@ -124,7 +147,7 @@ public class TeamHandler {
 	 * @return true if exists
 	 */
 	public boolean teamExists(String name) {
-		return idbind.containsKey(name.toLowerCase());
+		return idbindteam.containsKey(name.toLowerCase());
 	}
 	
 	/**
@@ -134,7 +157,7 @@ public class TeamHandler {
 	 */
 	public boolean teamExists(Integer id) {
 		if (id == null) return false;
-		return idbind.containsValue(id);
+		return idbindteam.containsValue(id);
 	}
 	
 	/**
@@ -240,6 +263,22 @@ public class TeamHandler {
 		String motd = rs.getString("motd");
 		rs.close();
 		return motd;
+	}
+	
+	/**
+	 * Get a list of all the teams
+	 * @return an arraylist containing the name of every team
+	 * @throws SQLException
+	 */
+	public ArrayList<String> teamGetList() throws SQLException {
+		ArrayList<String> list = new ArrayList<String>();
+		
+		ResultSet rs = cm.executePreparedQuery("getTeamList");
+		do {
+			list.add(rs.getString("name"));
+		} while (rs.next());
+		
+		return list;
 	}
 	
 	//---------------------Player methods
