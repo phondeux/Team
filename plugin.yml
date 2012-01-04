@@ -4,6 +4,6 @@ version: 1.0
 author: phondeux, generalportion
 
 commands:
-  teams:
+  team:
     description: All of the Team commands
     usage: See documentation.
