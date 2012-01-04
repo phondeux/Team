@@ -57,7 +57,7 @@ public class Team extends JavaPlugin{
         
         log.info("[Team] Initializing TeamHandler");
         try {
-        	tdbh = new TeamHandler(this, "teamdata", "teamuser", "teampass");
+        	tdbh = new TeamHandler(this, "localhost/teamdata", "teamuser", "teampass");
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");
