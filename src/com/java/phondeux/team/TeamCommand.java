@@ -1,5 +1,7 @@
 package com.java.phondeux.team;
 
+import java.sql.SQLException;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,6 +36,11 @@ public class TeamCommand implements CommandExecutor {
 		Player thePlayer = (Player)sender;
 		if (args.length > 0) {
 			if (args[0].matches("create")) {
+				try {
+					plugin.tdbh.teamCreate(args[1]);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("disband")) {
