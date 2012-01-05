@@ -30,6 +30,7 @@ public class TeamHandler {
 		cm.prepareStatement("createTeam", "insert into teams (name) values (?);");
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
+		cm.prepareStatement("getAllTeams", "select * from teams;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
 		cm.prepareStatement("setTeamDescription", "insert into teams (desc) values (?) where id=?;");
 		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
@@ -286,6 +287,16 @@ public class TeamHandler {
 		}
 		
 		return list;
+	}
+	
+	/**
+	 * Get all of the teams as an array
+	 * @return a resultset of all teams
+	 * @throws SQLException
+	 */
+	public ResultSet teamGetAll() throws SQLException {
+		ResultSet rs = cm.executePreparedQuery("getAllTeams");
+		return rs;
 	}
 	
 	//---------------------Player methods
