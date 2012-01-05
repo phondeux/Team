@@ -276,9 +276,11 @@ public class TeamHandler {
 		ArrayList<String> list = new ArrayList<String>();
 		
 		ResultSet rs = cm.executePreparedQuery("getTeamList");
-		do {
-			list.add(rs.getString("name"));
-		} while (rs.next());
+		if (rs.first()) {
+			do {
+				list.add(rs.getString("name"));
+			} while (rs.next());
+		}
 		
 		return list;
 	}

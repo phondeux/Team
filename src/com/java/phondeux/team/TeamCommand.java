@@ -1,6 +1,7 @@
 package com.java.phondeux.team;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -37,13 +38,29 @@ public class TeamCommand implements CommandExecutor {
 		if (args.length > 0) {
 			if (args[0].matches("create")) {
 				try {
-					plugin.tdbh.teamCreate(args[1]);
+					int id;
+					if ((id = plugin.tdbh.teamCreate(args[1])) != -1) {
+						thePlayer.sendMessage("Team created successfully, id " + id);
+					} else {
+						thePlayer.sendMessage("Team couldn't be created");
+					}
 				} catch (SQLException e) {
+					thePlayer.sendMessage("Team couldn't be created, exception");
 					e.printStackTrace();
 				}
 				return true;
 			}
 			if (args[0].matches("disband")) {
+				try {
+					if (plugin.tdbh.teamDelete(args[1])) {
+						thePlayer.sendMessage("Team deleted successfully");
+					} else {
+						thePlayer.sendMessage("Team couldn't be deleted");
+					}
+				} catch (SQLException e) {
+					thePlayer.sendMessage("Team couldn't be deleted, exception");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("invite")) {
@@ -80,6 +97,17 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("help")) {
+				try {
+					ArrayList<String> tmp = plugin.tdbh.teamGetList();
+					for (String s : tmp) {
+						thePlayer.sendMessage(s);
+					}
+					if (tmp.size() == 0) {
+						thePlayer.sendMessage("No teams");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 		} else {
