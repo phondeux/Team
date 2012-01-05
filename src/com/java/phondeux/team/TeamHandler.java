@@ -43,7 +43,7 @@ public class TeamHandler {
 		String name;
 		int id;
 		
-		if (rs.next()) {
+		if (rs.first()) {
 			do {
 				name = rs.getString("name").toLowerCase();
 				id = rs.getInt("id");
