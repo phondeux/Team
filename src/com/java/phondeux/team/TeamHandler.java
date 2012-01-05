@@ -99,6 +99,7 @@ public class TeamHandler {
 		cm.executePreparedUpdate("createTeam");
 		
 		ResultSet rs = cm.executePreparedQuery("getLatestTeam");
+		rs.first();
 		int id = rs.getInt("id");
 		rs.close();
 		
@@ -210,6 +211,7 @@ public class TeamHandler {
 		if (!teamExists(id)) return null;
 		cm.getPreparedStatement("getTeamDescription").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getTeamDescription");
+		rs.first();
 		String desc = rs.getString("descr");
 		rs.close();
 		return desc;
@@ -262,6 +264,7 @@ public class TeamHandler {
 		
 		cm.getPreparedStatement("getTeamMotd").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getTeamMotd");
+		rs.first();
 		String motd = rs.getString("motd");
 		rs.close();
 		return motd;
