@@ -1,7 +1,9 @@
 //The Package
 package com.java.phondeux.team;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.event.Event;
@@ -18,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Team extends JavaPlugin{
 	protected Logger log;
 	protected TeamHandler tdbh;
+	protected HashMap<String, String> teamList;
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
 
@@ -38,6 +41,20 @@ public class Team extends JavaPlugin{
 		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);
 
 		initialize();
+		
+		// Load list of teams <team name, team motd>
+		this.teamList = new HashMap<String, String>();
+		
+		try {
+			ResultSet rs = tdbh.teamGetAll();
+			while(rs.next()) {
+				teamList.put(rs.getString(2), rs.getString(4));
+				log.info("[Team] Loaded team " + rs.getString(2));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		//Get the infomation from the yml file.
         PluginDescriptionFile pdfFile = this.getDescription();
         //Print that the plugin has been enabled!
