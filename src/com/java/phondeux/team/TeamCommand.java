@@ -77,9 +77,16 @@ public class TeamCommand implements CommandExecutor {
 				}
 				try {
 					plugin.tdbh.teamDelete(pTeamID);
+					ArrayList<String> members = plugin.tdbh.playersGetNameOnTeam(pTeamID);
+					for (String m : members) {
+						plugin.tdbh.playerSetStatus(plugin.tdbh.playerGetID(m), 0);
+						plugin.tdbh.playerSetTeam(plugin.tdbh.playerGetID(m), 0);
+						if (plugin.getServer().getPlayer(m) != null) {
+							plugin.getServer().getPlayer(m).sendMessage("Your team has been disbanded.");
+						}
+					}
 					plugin.tdbh.playerSetStatus(pID, 0);
-					player.sendMessage("Your team has been disbanded.");
-					//TODO: Remove all players on the team
+					player.sendMessage("Your has been disbanded.");
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -122,7 +129,13 @@ public class TeamCommand implements CommandExecutor {
 				try {
 					ArrayList<String> tmp = plugin.tdbh.teamGetList();
 					for (String s : tmp) {
-						player.sendMessage(s);
+						String msg = s + ": ";
+						int teamid = plugin.tdbh.teamGetID(s);
+						ArrayList<String> tmp2 = plugin.tdbh.playersGetNameOnTeam(teamid);
+						for (String s2 : tmp2) {
+							msg += s2 + ", ";
+						}
+						player.sendMessage(msg);
 					}
 					if (tmp.size() == 0) {
 						player.sendMessage("No teams");

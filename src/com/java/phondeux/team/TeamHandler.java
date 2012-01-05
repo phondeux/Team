@@ -49,6 +49,7 @@ public class TeamHandler {
 		//Statuses - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
 		cm.prepareStatement("setPlayerStatus", "update players set teamstatus=? where id=?;");
 		cm.prepareStatement("getPlayerStatus", "select teamstatus from players where id=?;");
+		cm.prepareStatement("getPlayersOnTeam", "select * from players where teamid=? and teamstatus!=0;");
 	}
 	
 	private void populateMap() throws SQLException {
@@ -438,10 +439,22 @@ public class TeamHandler {
 		return true;
 	}
 	
+	/**
+	 * Gets the status integer of a player
+	 * @param name the name of the player
+	 * @return 0: not on a team, 1: member, 2: mod, 3: owner
+	 * @throws SQLException
+	 */
 	public Integer playerGetStatus(String name) throws SQLException {
 		return playerGetStatus(playerGetID(name));
 	}
 	
+	/**
+	 * Gets the status integer of a player
+	 * @param id the id of the player
+	 * @return 0: not on a team, 1: member, 2: mod, 3: owner
+	 * @throws SQLException
+	 */
 	public Integer playerGetStatus(Integer id) throws SQLException {
 		cm.getPreparedStatement("getPlayerStatus").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getPlayerStatus");
@@ -451,15 +464,43 @@ public class TeamHandler {
 		return status;
 	}
 	
+	/**
+	 * Sets the status integer of a player
+	 * @param name the name of the player
+	 * @param status 0: not on a team, 1: member, 2: mod, 3: owner
+	 * @return true if successful
+	 * @throws SQLException
+	 */
 	public boolean playerSetStatus(String name, Integer status) throws SQLException {
 		return playerSetStatus(playerGetID(name), status);
 	}
 	
+	/**
+	 * Sets the status integer of a player
+	 * @param id the id of the player
+	 * @param status 0: not on a team, 1: member, 2: mod, 3: owner
+	 * @return true if successful
+	 * @throws SQLException
+	 */
 	public boolean playerSetStatus(Integer id, Integer status) throws SQLException {
 		if (!playerExists(id)) return false;
 		cm.getPreparedStatement("setPlayerStatus").setInt(1, status);
 		cm.getPreparedStatement("setPlayerStatus").setInt(2, id);
 		cm.executePreparedUpdate("setPlayerStatus");
 		return true;
+	}
+	
+	public ArrayList<String> playersGetNameOnTeam(Integer teamid) throws SQLException {
+		ArrayList<String> ret = new ArrayList<String>();
+		
+		cm.getPreparedStatement("getPlayersOnTeam").setInt(1, teamid);
+		ResultSet rs = cm.executePreparedQuery("getPlayersOnTeam");
+		if (rs.first()) {
+			do {
+				ret.add(rs.getString("name"));
+			} while (rs.next());
+		}
+		
+		return ret;
 	}
 }
