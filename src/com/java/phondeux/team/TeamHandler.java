@@ -43,11 +43,13 @@ public class TeamHandler {
 		String name;
 		int id;
 		
-		do {
-			name = rs.getString("name").toLowerCase();
-			id = rs.getInt("id");
-			idbindteam.put(name, id);
-		} while (rs.next());
+		if (rs.next()) {
+			do {
+				name = rs.getString("name").toLowerCase();
+				id = rs.getInt("id");
+				idbindteam.put(name, id);
+			} while (rs.next());
+		}
 		
 		rs.close();
 	}
