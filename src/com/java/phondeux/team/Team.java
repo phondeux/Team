@@ -19,7 +19,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Team extends JavaPlugin{
 	protected Logger log;
 	protected TeamHandler tdbh;
-	protected HashMap<String, String> teamList;
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
 
