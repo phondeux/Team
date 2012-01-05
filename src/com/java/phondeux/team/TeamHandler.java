@@ -22,7 +22,7 @@ public class TeamHandler {
 	}
 	
 	private void initTables() throws SQLException {
-		cm.executeUpdate("create table if not exists teams (id INTEGER PRIMARY KEY, name CHAR(8), desc TEXT, motd TEXT);");
+		cm.executeUpdate("create table if not exists teams (id INTEGER PRIMARY KEY, name CHAR(8), descr TEXT, motd TEXT);");
 		cm.executeUpdate("create table if not exists players (id INTEGER PRIMARY KEY, name TEXT, teamid INTEGER);");
 	}
 	
@@ -32,7 +32,7 @@ public class TeamHandler {
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
 		cm.prepareStatement("setTeamDescription", "insert into teams (desc) values (?) where id=?;");
-		cm.prepareStatement("getTeamDescription", "select desc from teams where id=?;");
+		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
 		cm.prepareStatement("setTeamMotd", "insert into teams (motd) values (?) where id=?;");
 		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
@@ -208,7 +208,7 @@ public class TeamHandler {
 		if (!teamExists(id)) return null;
 		cm.getPreparedStatement("getTeamDescription").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getTeamDescription");
-		String desc = rs.getString("desc");
+		String desc = rs.getString("descr");
 		rs.close();
 		return desc;
 	}
