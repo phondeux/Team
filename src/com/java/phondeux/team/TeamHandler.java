@@ -22,8 +22,8 @@ public class TeamHandler {
 	}
 	
 	private void initTables() throws SQLException {
-		cm.executeUpdate("create table if not exists teams (id INTEGER PRIMARY KEY, name CHAR(8), descr TEXT, motd TEXT);");
-		cm.executeUpdate("create table if not exists players (id INTEGER PRIMARY KEY, name TEXT, teamid INTEGER);");
+		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name CHAR(8), descr TEXT, motd TEXT);");
+		cm.executeUpdate("create table if not exists players (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name TEXT, teamid INTEGER);");
 	}
 	
 	private void initStatements() throws SQLException {
