@@ -1,7 +1,6 @@
 //The Package
 package com.java.phondeux.team;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -42,19 +41,6 @@ public class Team extends JavaPlugin{
 
 		initialize();
 		
-		// Load list of teams <team name, team motd>
-		this.teamList = new HashMap<String, String>();
-		
-		try {
-			ResultSet rs = tdbh.teamGetAll();
-			while(rs.next()) {
-				teamList.put(rs.getString(2), rs.getString(4));
-				log.info("[Team] Loaded team " + rs.getString(2));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
 		//Get the infomation from the yml file.
         PluginDescriptionFile pdfFile = this.getDescription();
         //Print that the plugin has been enabled!
@@ -62,19 +48,9 @@ public class Team extends JavaPlugin{
 	}
 
 	private void initialize() {
-		// TODO Auto-generated method stub
-		try {
-       		Class.forName("com.mysql.jdbc.Driver");
-        } catch (Exception e) {
-        	e.printStackTrace();
-        	log.severe("Team: Couldn't find JDBC.");
-        	getPluginLoader().disablePlugin(this);
-        	return;
-        }
-        
         log.info("[Team] Initializing TeamHandler");
         try {
-        	tdbh = new TeamHandler(this, "localhost/teamdata", "teamuser", "teampass");
+        	tdbh = new TeamHandler(this, "localhost/teams", "teamuser", "teampass");
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");

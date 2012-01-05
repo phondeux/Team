@@ -8,10 +8,12 @@ import java.util.HashMap;
 public class TeamHandler {
 	private final ConnectionManager cm;
 	private HashMap<String, Integer> idbindteam;
+	private HashMap<String, Integer> idbindplayer;
 	
 	public TeamHandler(Team parent, String database, String user, String password) throws SQLException, ClassNotFoundException {
 		  cm = new ConnectionManager(database, user, password);
 		  idbindteam = new HashMap<String, Integer>();
+		  idbindplayer = new HashMap<String, Integer>();
 		  initTables();
 		  initStatements();
 		  populateMap();
@@ -23,27 +25,38 @@ public class TeamHandler {
 	
 	private void initTables() throws SQLException {
 		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name CHAR(8), descr TEXT, motd TEXT);");
-		cm.executeUpdate("create table if not exists players (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name TEXT, teamid INTEGER);");
+		cm.executeUpdate("create table if not exists players (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name TEXT, teamid INT UNSIGNED, teamstatus TINYINT UNSIGNED);");
 	}
 	
 	private void initStatements() throws SQLException {
-		cm.prepareStatement("createTeam", "insert into teams (name) values (?);");
+		cm.prepareStatement("createTeam", "insert into teams (name, descr, motd) values (?, 'Description is unset', 'Motd is unset');");
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
-		cm.prepareStatement("getAllTeams", "select * from teams;");
+		cm.prepareStatement("getTeamAll", "select * from teams;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
-		cm.prepareStatement("setTeamDescription", "insert into teams (desc) values (?) where id=?;");
+		cm.prepareStatement("setTeamDescription", "update teams set desc=? where id=?;");
 		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
-		cm.prepareStatement("setTeamMotd", "insert into teams (motd) values (?) where id=?;");
+		cm.prepareStatement("setTeamMotd", "update teams set motd=? where id=?;");
 		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
+		
+		cm.prepareStatement("createPlayer", "insert into players (name, teamid, teamstatus) values (?, 0, 0);");
+		cm.prepareStatement("getLatestPlayer", "select * from players order by id desc limit 0, 1;");
+		cm.prepareStatement("getPlayer", "select * from players where id=?;");
+		cm.prepareStatement("getPlayerAll", "select * from players;");
+		cm.prepareStatement("setPlayerTeam", "update players set teamid=? where id=?;");
+		cm.prepareStatement("getPlayerTeam", "select teamid from players where id=?;");
+		//Statuses - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
+		cm.prepareStatement("setPlayerStatus", "update players set teamstatus=? where id=?;");
+		cm.prepareStatement("getPlayerStatus", "select teamstatus from players where id=?;");
 	}
 	
 	private void populateMap() throws SQLException {
-		ResultSet rs = cm.executeQuery("select * from teams;");
+		ResultSet rs;
 		String name;
 		int id;
 		
+		rs = cm.executePreparedQuery("getTeamAll");
 		if (rs.first()) {
 			do {
 				name = rs.getString("name").toLowerCase();
@@ -51,7 +64,16 @@ public class TeamHandler {
 				idbindteam.put(name, id);
 			} while (rs.next());
 		}
+		rs.close();
 		
+		rs = cm.executePreparedQuery("getPlayerAll");
+		if (rs.first()) {
+			do {
+				name = rs.getString("name").toLowerCase();
+				id = rs.getInt("id");
+				idbindplayer.put(name, id);
+			} while (rs.next());
+		}
 		rs.close();
 	}
 	
@@ -151,6 +173,7 @@ public class TeamHandler {
 	 * @return true if exists
 	 */
 	public boolean teamExists(String name) {
+		if (name == null) return false;
 		return idbindteam.containsKey(name.toLowerCase());
 	}
 	
@@ -289,45 +312,154 @@ public class TeamHandler {
 		return list;
 	}
 	
-	/**
-	 * Get all of the teams as an array
-	 * @return a resultset of all teams
-	 * @throws SQLException
-	 */
-	public ResultSet teamGetAll() throws SQLException {
-		ResultSet rs = cm.executePreparedQuery("getAllTeams");
-		return rs;
-	}
-	
 	//---------------------Player methods
 	
 	/**
-	 * Create a player
+	 * Get the id of a player
 	 * @param name the name of the player
-	 * @return true if successful
-	 * @throws SQLException
+	 * @return the id of the player, or null if the player doesn't exist
 	 */
-	public boolean playerCreate(String name) throws SQLException {
-		return false;
-	}
-	
-	/**
-	 * Delete a player
-	 * @param name the name of the player
-	 * @return true if successful
-	 * @throws SQLException
-	 */
-	public boolean playerDelete(String name) throws SQLException {
-		return false;
+	public Integer playerGetID(String name) {
+		if (!idbindplayer.containsKey(name.toLowerCase())) return null;
+		return idbindplayer.get(name.toLowerCase());
 	}
 	
 	/**
 	 * Check if a player exists
 	 * @param name the name of the player
 	 * @return true if exists
+	 */
+	public boolean playerExists(String name) {
+		if (name == null) return false;
+		return (idbindplayer.containsKey(name.toLowerCase()));
+	}
+	
+	/**
+	 * Check if a player exists
+	 * @param id the id of the player
+	 * @return true if exists
+	 */
+	public boolean playerExists(Integer id) {
+		if (id == null) return false;
+		return (idbindplayer.containsValue(id));
+	}
+	
+	/**
+	 * Create a player
+	 * @param name the name of the player
+	 * @return the player id if successful, otherwise -1
 	 * @throws SQLException
 	 */
-	public boolean playerExists(String name) throws SQLException {
-		return false;
+	public Integer playerCreate(String name) throws SQLException {
+		if (playerExists(name)) return -1;
+		
+		cm.getPreparedStatement("createPlayer").setString(1, name);
+		cm.executePreparedUpdate("createPlayer");
+		
+		ResultSet rs = cm.executePreparedQuery("getLatestPlayer");
+		rs.first();
+		int id = rs.getInt("id");
+		rs.close();
+		
+		idbindplayer.put(name.toLowerCase(), id);
+		
+		return id;
+	}
+	
+	/**
+	 * Gets a player
+	 * @param name the name of the player
+	 * @return a resultset containing all columns
+	 * @throws SQLException
+	 */
+	public ResultSet playerGet(String name) throws SQLException {
+		return playerGet(playerGetID(name));
+	}
+	
+	/**
+	 * Gets a player
+	 * @param id the id of the player
+	 * @return a resultset containing all columns
+	 * @throws SQLException
+	 */
+	public ResultSet playerGet(Integer id) throws SQLException {
+		cm.getPreparedStatement("playerGet").setInt(1, id);
+		return cm.executePreparedQuery("playerGet");
+	}
+	
+	/**
+	 * Gets the teamid of a player
+	 * @param name the name of the player
+	 * @return the id of the team the player is on
+	 * @throws SQLException
+	 */
+	public Integer playerGetTeam(String name) throws SQLException {
+		return playerGetTeam(playerGetID(name));
+	}
+	
+	/**
+	 * Gets the teamid of a player
+	 * @param id the id of the player
+	 * @return the id of the team the player is on
+	 * @throws SQLException
+	 */
+	public Integer playerGetTeam(Integer id) throws SQLException {
+		cm.getPreparedStatement("getPlayerTeam").setInt(1, id);
+		ResultSet rs = cm.executePreparedQuery("getPlayerTeam");
+		rs.first();
+		int teamid = rs.getInt("teamid");
+		rs.close();
+		return teamid;
+	}
+	
+	/**
+	 * Set the team of a player
+	 * @param name the name of the player
+	 * @param teamid the id of the team
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean playerSetTeam(String name, Integer teamid) throws SQLException {
+		return playerSetTeam(playerGetID(name), teamid);
+	}
+	
+	/**
+	 * Set the team of a player
+	 * @param id the id of the player
+	 * @param teamid the id of the team
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean playerSetTeam(Integer id, Integer teamid) throws SQLException {
+		if (!playerExists(id)) return false;
+		cm.getPreparedStatement("setPlayerTeam").setInt(1, teamid);
+		cm.getPreparedStatement("setPlayerTeam").setInt(2, id);
+		cm.executePreparedUpdate("setPlayerTeam");
+		return true;
+	}
+	
+	public Integer playerGetStatus(String name) throws SQLException {
+		return playerGetStatus(playerGetID(name));
+	}
+	
+	public Integer playerGetStatus(Integer id) throws SQLException {
+		cm.getPreparedStatement("getPlayerStatus").setInt(1, id);
+		ResultSet rs = cm.executePreparedQuery("getPlayerStatus");
+		rs.first();
+		int status = rs.getInt("teamstatus");
+		rs.close();
+		return status;
+	}
+	
+	public boolean playerSetStatus(String name, Integer status) throws SQLException {
+		return playerSetStatus(playerGetID(name), status);
+	}
+	
+	public boolean playerSetStatus(Integer id, Integer status) throws SQLException {
+		if (!playerExists(id)) return false;
+		cm.getPreparedStatement("setPlayerStatus").setInt(1, status);
+		cm.getPreparedStatement("setPlayerStatus").setInt(2, id);
+		cm.executePreparedUpdate("setPlayerStatus");
+		return true;
 	}
 }

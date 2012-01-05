@@ -34,31 +34,53 @@ public class TeamCommand implements CommandExecutor {
 		//		chat		- toggle all chat to be team-only
 		//					  /tc will also be used to team chat for convenience
 		//		help		- a list of the commands and how to use them
-		Player thePlayer = (Player)sender;
+		Player player = (Player)sender;
+		Integer pID = plugin.tdbh.playerGetID(player.getName());
+		Integer pStatus = 0, pTeamID = 0;
+		try {
+			pStatus = plugin.tdbh.playerGetStatus(pID);
+			pTeamID = plugin.tdbh.playerGetTeam(pID);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		if (args.length > 0) {
 			if (args[0].matches("create")) {
+				if (pStatus != 0) {
+					player.sendMessage("You are already on a team.");
+					return true;
+				}
+				if (args[1].length() > 8) {
+					player.sendMessage("Team names are limited to 8 characters.");
+					return true;
+				}
+				if (plugin.tdbh.teamExists(args[1])) {
+					player.sendMessage("A team with that name already exists.");
+					return true;
+				}
+				
 				try {
-					int id;
-					if ((id = plugin.tdbh.teamCreate(args[1])) != -1) {
-						thePlayer.sendMessage("Team created successfully, id " + id);
-					} else {
-						thePlayer.sendMessage("Team couldn't be created");
-					}
+					int teamid = plugin.tdbh.teamCreate(args[1]);
+					plugin.tdbh.playerSetTeam(pID, teamid);
+					plugin.tdbh.playerSetStatus(pID, 3);
+					player.sendMessage("Team " + args[1] + " created successfully!");
 				} catch (SQLException e) {
-					thePlayer.sendMessage("Team couldn't be created, exception");
+					player.sendMessage("Database error.");
 					e.printStackTrace();
 				}
+				
 				return true;
 			}
 			if (args[0].matches("disband")) {
+				if (pStatus != 3) {
+					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					return true;
+				}
 				try {
-					if (plugin.tdbh.teamDelete(args[1])) {
-						thePlayer.sendMessage("Team deleted successfully");
-					} else {
-						thePlayer.sendMessage("Team couldn't be deleted");
-					}
+					plugin.tdbh.teamDelete(pTeamID);
+					plugin.tdbh.playerSetStatus(pID, 0);
+					player.sendMessage("Your team has been disbanded.");
+					//TODO: Remove all players on the team
 				} catch (SQLException e) {
-					thePlayer.sendMessage("Team couldn't be deleted, exception");
 					e.printStackTrace();
 				}
 				return true;
@@ -100,10 +122,10 @@ public class TeamCommand implements CommandExecutor {
 				try {
 					ArrayList<String> tmp = plugin.tdbh.teamGetList();
 					for (String s : tmp) {
-						thePlayer.sendMessage(s);
+						player.sendMessage(s);
 					}
 					if (tmp.size() == 0) {
-						thePlayer.sendMessage("No teams");
+						player.sendMessage("No teams");
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -113,8 +135,8 @@ public class TeamCommand implements CommandExecutor {
 		} else {
 			// Return a simple two/three column list of commands and how to get a full list
 			//    ie /team help #
-			thePlayer.sendMessage("Using /team");
-			thePlayer.sendMessage(ChatColor.RED + "/team create" + ChatColor.WHITE + " - Creates a team");
+			player.sendMessage("Using /team");
+			player.sendMessage(ChatColor.RED + "/team create" + ChatColor.WHITE + " - Creates a team");
 			return true;
 		}
 		return true;
