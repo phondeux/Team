@@ -25,19 +25,21 @@ public class TeamHandler {
 	
 	private void initTables() throws SQLException {
 		// teams
-		//   name - team name
-		//   descr - team description
-		//   motd - team message of the day, sent to players on server login
-		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name CHAR(8), descr TEXT, motd TEXT);");
+		// name - team name
+		// status - 0:Open, 1:Closed
+		// descr - team description
+		// motd - team message of the day, sent to players on server login
+		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), status TINYINT UNSIGNED, name CHAR(8), descr TEXT, motd TEXT);");
 		// players
-		//   name - player name
-		//   teamid - id of team they have joined. "No Team" is 0.
-		//   teamstatus - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
+		// name - player name
+		// teamid - id of team they have joined. "No Team" is 0.
+		// teamstatus - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
 		cm.executeUpdate("create table if not exists players (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name TEXT, teamid INT UNSIGNED, teamstatus TINYINT UNSIGNED);");
 	}
 	
 	private void initStatements() throws SQLException {
-		cm.prepareStatement("createTeam", "insert into teams (name, descr, motd) values (?, 'Description is unset', 'Motd is unset');");
+		//Statuses - 0:Open, 1:Closed
+		cm.prepareStatement("createTeam", "insert into teams (name, status, descr, motd) values (?, 0, 'Description is unset', 'Motd is unset');");
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
 		cm.prepareStatement("getTeamAll", "select * from teams;");
@@ -47,14 +49,16 @@ public class TeamHandler {
 		cm.prepareStatement("setTeamMotd", "update teams set motd=? where id=?;");
 		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
+		cm.prepareStatement("setTeamStatus", "update teams set status=? where id=?;");
+		cm.prepareStatement("getTeamStatus", "select status from teams where id=?;");
 		
+		//Statuses - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
 		cm.prepareStatement("createPlayer", "insert into players (name, teamid, teamstatus) values (?, 0, 0);");
 		cm.prepareStatement("getLatestPlayer", "select * from players order by id desc limit 0, 1;");
 		cm.prepareStatement("getPlayer", "select * from players where id=?;");
 		cm.prepareStatement("getPlayerAll", "select * from players;");
 		cm.prepareStatement("setPlayerTeam", "update players set teamid=? where id=?;");
 		cm.prepareStatement("getPlayerTeam", "select teamid from players where id=?;");
-		//Statuses - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
 		cm.prepareStatement("setPlayerStatus", "update players set teamstatus=? where id=?;");
 		cm.prepareStatement("getPlayerStatus", "select teamstatus from players where id=?;");
 		cm.prepareStatement("getPlayersOnTeam", "select * from players where teamid=? and teamstatus!=0;");
@@ -319,6 +323,60 @@ public class TeamHandler {
 		}
 		
 		return list;
+	}
+	
+	/**
+	 * Set the status of the team
+	 * @param name the name of the team
+	 * @param status 0:Open, 1:Closed
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean teamSetStatus(String name, Integer status) throws SQLException {
+		return teamSetStatus(teamGetID(name), status);
+	}
+	
+	/**
+	 * Set the status of the team
+	 * @param id the id of the team
+	 * @param status 0:Open, 1:Closed
+	 * @return true if successful
+	 * @throws SQLException
+	 */
+	public boolean teamSetStatus(Integer id, Integer status) throws SQLException {
+		if (!teamExists(id)) return false;
+		
+		cm.getPreparedStatement("setTeamStatus").setInt(1, status);
+		cm.getPreparedStatement("setTeamStatus").setInt(2, id);
+		cm.executePreparedUpdate("setTeamStatus");
+		
+		return true;
+	}
+	
+	/**
+	 * Get the status of a team
+	 * @param name the name of the team
+	 * @return 0:Open, 1:Closed, or null if it doesn't exist
+	 * @throws SQLException
+	 */
+	public Integer teamGetStatus(String name) throws SQLException {
+		return teamGetStatus(teamGetID(name));
+	}
+	
+	/**
+	 * Get the status of a team
+	 * @param id the id of the team
+	 * @return 0:Open, 1:Closed, or null if it doesn't exist
+	 * @throws SQLException
+	 */
+	public Integer teamGetStatus(Integer id) throws SQLException {
+		if (!teamExists(id)) return null;
+		cm.getPreparedStatement("getTeamStatus").setInt(1, id);
+		ResultSet rs = cm.executePreparedQuery("getTeamStatus");
+		rs.first();
+		int status = rs.getInt("status");
+		rs.close();
+		return status;
 	}
 	
 	//---------------------Player methods
