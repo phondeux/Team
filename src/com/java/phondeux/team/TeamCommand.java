@@ -53,6 +53,9 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("Team names are limited to 8 characters.");
 					return true;
 				}
+				if (!(args[1].matches("[a-zA-Z0-9]"))) {
+					player.sendMessage("Team names may be made up of only a-z, A-Z, or 0-9");
+				}
 				if (plugin.tdbh.teamExists(args[1])) {
 					player.sendMessage("A team with that name already exists.");
 					return true;
