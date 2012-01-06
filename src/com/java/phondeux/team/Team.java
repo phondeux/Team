@@ -2,7 +2,6 @@
 package com.java.phondeux.team;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.event.Event;
@@ -49,7 +48,7 @@ public class Team extends JavaPlugin{
 	private void initialize() {
         log.info("[Team] Initializing TeamHandler");
         try {
-        	tdbh = new TeamHandler(this, "localhost/teams", "teamuser", "teampass");
+        	tdbh = new TeamHandler(this, "localhost/teamdata", "teamuser", "teampass");
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");
