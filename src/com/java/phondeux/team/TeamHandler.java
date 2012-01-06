@@ -24,7 +24,15 @@ public class TeamHandler {
 	}
 	
 	private void initTables() throws SQLException {
+		// teams
+		//   name - team name
+		//   descr - team description
+		//   motd - team message of the day, sent to players on server login
 		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name CHAR(8), descr TEXT, motd TEXT);");
+		// players
+		//   name - player name
+		//   teamid - id of team they have joined. "No Team" is 0.
+		//   teamstatus - 0:Not on a team, 1:Member, 2:Mod, 3:Owner
 		cm.executeUpdate("create table if not exists players (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), name TEXT, teamid INT UNSIGNED, teamstatus TINYINT UNSIGNED);");
 	}
 	
