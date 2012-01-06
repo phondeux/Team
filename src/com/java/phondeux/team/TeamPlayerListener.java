@@ -21,5 +21,7 @@ public class TeamPlayerListener extends PlayerListener {
 				e.printStackTrace();
 			}
 		}
+		// check if player is on a team - if they are they should see their motd
+		//  - Don't display motd if it's empty
 	}
 }
