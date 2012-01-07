@@ -76,7 +76,7 @@ public class TeamCommand implements CommandExecutor {
 			}
 			if (args[0].matches("disband")) {
 				if (pStatus != 3) {
-					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
 				}
 				try {
@@ -98,9 +98,65 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("invite")) {
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
+					return true;
+				}
+				Integer playerid = plugin.th.playerGetID(args[1]);
+				if (playerid == null) {
+					player.sendMessage("The player " + args[1] + " doesn't exist.");
+					return true;
+				}
+				try {
+					plugin.eh.CreateEvent().PlayerInvite(playerid, pTeamID, pID);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("deinvite")) {
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
+					return true;
+				}
+				Integer playerid = plugin.th.playerGetID(args[1]);
+				if (playerid == null) {
+					player.sendMessage("The player " + args[1] + " doesn't exist.");
+					return true;
+				}
+				try {
+					if (!plugin.th.playerIsInvited(playerid, pTeamID)) {
+						player.sendMessage("The player " + args[1] + " isn't invited.");
+						return true;
+					}
+					plugin.eh.CreateEvent().PlayerDeinvite(playerid, pTeamID, pID);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
+				return true;
+			}
+			if (args[0].matches("setmotd")) {
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
+					return true;
+				}
+				if (args.length < 2) {
+					player.sendMessage("No motd specified.");
+					return true;
+				}
+				String motd = "";
+				for (int i = 1; i < args.length; i++) {
+					motd += args[i];
+					if (i != args.length - 1) motd += " ";
+				}
+				try {
+					plugin.eh.CreateEvent().TeamMotd(pID, pTeamID, motd);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("description")) {
@@ -118,7 +174,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				String teamname = plugin.th.teamGetName(teamid);
 				try {
-					if (plugin.th.teamGetStatus(teamid) == 1) {
+					if (plugin.th.teamGetStatus(teamid) == 1 && !plugin.th.playerIsInvited(pID, teamid)) {
 						player.sendMessage(teamname + " is closed.");
 						return true;
 					}
@@ -157,7 +213,7 @@ public class TeamCommand implements CommandExecutor {
 			}
 			if (args[0].matches("open")) {
 				if (pStatus != 3) {
-					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
 				}
 				try {
@@ -176,7 +232,7 @@ public class TeamCommand implements CommandExecutor {
 			}
 			if (args[0].matches("close")) {
 				if (pStatus != 3) {
-					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
 				}
 				try {
