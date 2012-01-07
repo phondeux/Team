@@ -62,6 +62,8 @@ public class TeamHandler {
 		cm.prepareStatement("setPlayerStatus", "update players set teamstatus=? where id=?;");
 		cm.prepareStatement("getPlayerStatus", "select teamstatus from players where id=?;");
 		cm.prepareStatement("getPlayersOnTeam", "select * from players where teamid=? and teamstatus!=0;");
+		//Parent: player id, child: team id
+		cm.prepareStatement("getPlayerInvite", "select * from events where (type=7 or type=8) and parent=? and child=? order by id desc limit 0, 1;");
 	}
 	
 	private void populateMap() throws SQLException {
@@ -584,6 +586,26 @@ public class TeamHandler {
 		cm.getPreparedStatement("setPlayerStatus").setInt(2, id);
 		cm.executePreparedUpdate("setPlayerStatus");
 		return true;
+	}
+	
+	/**
+	 * Check if a player is invited to a team
+	 * @param id the id of the player
+	 * @param teamid the id of the team
+	 * @return true if the player is invited
+	 * @throws SQLException
+	 */
+	public boolean playerIsInvited(Integer id, Integer teamid) throws SQLException {
+		if (!playerExists(id) || !teamExists(teamid)) return false;
+		
+		cm.getPreparedStatement("getPlayerInvite").setInt(1, id);
+		cm.getPreparedStatement("getPlayerInvite").setInt(2, teamid);
+		ResultSet rs = cm.executePreparedQuery("getPlayerInvite");
+		if (!rs.first()) return false;
+		boolean invited = rs.getInt("type") == 7 ? true : false;
+		rs.close();
+		
+		return invited;
 	}
 	
 	public ArrayList<String> playersGetNameOnTeam(Integer teamid) throws SQLException {
