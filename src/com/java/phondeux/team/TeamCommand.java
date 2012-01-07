@@ -202,7 +202,7 @@ public class TeamCommand implements CommandExecutor {
 			if (args[0].matches("chat")) {
 				return true;
 			}
-			if (args[0].matches("help")) {
+			if (args[0].matches("who")) {
 				try {
 					ArrayList<String> tmp = plugin.th.teamGetList();
 					for (String s : tmp) {
@@ -225,8 +225,12 @@ public class TeamCommand implements CommandExecutor {
 		} else {
 			// Return a simple two/three column list of commands and how to get a full list
 			//    ie /team help #
-			player.sendMessage("Using /team");
-			player.sendMessage(ChatColor.RED + "/team create" + ChatColor.WHITE + " - Creates a team");
+			player.sendMessage("Usage: /team [command]");
+			player.sendMessage(ChatColor.RED + "create    disband    kick");
+			player.sendMessage(ChatColor.RED + "invite    open       close");
+			player.sendMessage(ChatColor.RED + "deinvite  promote    demote");
+			player.sendMessage(ChatColor.RED + "join      leave      chat      who");
+			player.sendMessage(ChatColor.RED + "help - " + ChatColor.WHITE + "for details on each");
 			return true;
 		}
 		return true;
