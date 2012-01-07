@@ -23,5 +23,7 @@ public class TeamPlayerListener extends PlayerListener {
 		}
 		// check if player is on a team - if they are they should see their motd
 		//  - Don't display motd if it's empty
+		
+		// check if player has invites and display them as well as a short 'how to join a team' message
 	}
 }
