@@ -32,7 +32,7 @@ public class TeamPlayerListener extends PlayerListener {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		if (tMOTD.length() != 0) {
+		if (tMOTD != null && tMOTD.length() != 0) {
 			player.sendMessage(tMOTD);
 		}
 		// check if player has invites and display them as well as a short 'how to join a team' message

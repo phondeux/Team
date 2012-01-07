@@ -29,7 +29,7 @@ public class TeamHandler {
 		// status - 0:Open, 1:Closed
 		// descr - team description
 		// motd - team message of the day, sent to players on server login
-		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), status TINYINT UNSIGNED, name CHAR(8), descr TEXT, motd TEXT);");
+		cm.executeUpdate("create table if not exists teams (id INT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), status TINYINT UNSIGNED, name CHAR(8), descr TEXT);");
 		// players
 		// name - player name
 		// teamid - id of team they have joined. "No Team" is 0.
@@ -39,14 +39,13 @@ public class TeamHandler {
 	
 	private void initStatements() throws SQLException {
 		//Statuses - 0:Open, 1:Closed
-		cm.prepareStatement("createTeam", "insert into teams (name, status, descr, motd) values (?, 0, 'Description is unset', 'Motd is unset');");
+		cm.prepareStatement("createTeam", "insert into teams (name, status, descr) values (?, 0, 'Description is unset');");
 		cm.prepareStatement("getLatestTeam", "select * from teams order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
 		cm.prepareStatement("getTeamAll", "select * from teams;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
 		cm.prepareStatement("setTeamDescription", "update teams set desc=? where id=?;");
 		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
-		cm.prepareStatement("setTeamMotd", "update teams set motd=? where id=?;");
 		cm.prepareStatement("getTeamMotd", "select * from events where type=9 and child=? order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
 		cm.prepareStatement("setTeamStatus", "update teams set status=? where id=?;");
@@ -272,34 +271,6 @@ public class TeamHandler {
 	}
 	
 	/**
-	 * Set the message of the day for a team DEPRECATED - USE EVENTHANDLER
-	 * @param name the name of the team
-	 * @param motd the motd of the team
-	 * @return true if successful
-	 * @throws SQLException
-	 */
-	public boolean teamSetMotd(String name, String motd) throws SQLException {
-		return teamSetMotd(teamGetID(name), motd);
-	}
-	
-	/**
-	 * Set the message of the day for a team DEPRECATED - USE EVENTHANDLER
-	 * @param id the id of the team
-	 * @param motd the motd of the team
-	 * @return true if successful
-	 * @throws SQLException
-	 */
-	public boolean teamSetMotd(Integer id, String motd) throws SQLException {
-		if (!teamExists(id)) return false;
-
-		cm.getPreparedStatement("setTeamMotd").setString(1, motd);
-		cm.getPreparedStatement("setTeamMotd").setInt(2, id);
-		cm.executePreparedUpdate("setTeamMotd");
-		
-		return true;
-	}
-	
-	/**
 	 * Get the message of the day for a team
 	 * @param name the name of the team
 	 * @return the motd, or null if unsuccessful
@@ -319,7 +290,7 @@ public class TeamHandler {
 		cm.getPreparedStatement("getTeamMotd").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getTeamMotd");
 		rs.first();
-		String motd = rs.getString("motd");
+		String motd = rs.getString("data");
 		rs.close();
 		return motd;
 	}
