@@ -15,9 +15,6 @@ public class TeamPlayerListener extends PlayerListener {
 	
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		Integer pID = team.th.playerGetID(player.getName());
-		String tMOTD = "";
-		
 		if (!team.th.playerExists(player.getName())) {
 			try {
 				team.th.playerCreate(player.getName());
@@ -25,6 +22,10 @@ public class TeamPlayerListener extends PlayerListener {
 				e.printStackTrace();
 			}
 		}
+		
+		Integer pID = team.th.playerGetID(player.getName());
+		String tMOTD = "";
+		
 		// Fetch team motd
 		//  - Don't display motd if it's empty
 		try {
