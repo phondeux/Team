@@ -47,7 +47,7 @@ public class TeamHandler {
 		cm.prepareStatement("setTeamDescription", "update teams set desc=? where id=?;");
 		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
 		cm.prepareStatement("setTeamMotd", "update teams set motd=? where id=?;");
-		cm.prepareStatement("getTeamMotd", "select motd from teams where id=?;");
+		cm.prepareStatement("getTeamMotd", "select * from events where type=9 and child=? order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
 		cm.prepareStatement("setTeamStatus", "update teams set status=? where id=?;");
 		cm.prepareStatement("getTeamStatus", "select status from teams where id=?;");
@@ -272,7 +272,7 @@ public class TeamHandler {
 	}
 	
 	/**
-	 * Set the message of the day for a team
+	 * Set the message of the day for a team DEPRECATED - USE EVENTHANDLER
 	 * @param name the name of the team
 	 * @param motd the motd of the team
 	 * @return true if successful
@@ -283,7 +283,7 @@ public class TeamHandler {
 	}
 	
 	/**
-	 * Set the message of the day for a team
+	 * Set the message of the day for a team DEPRECATED - USE EVENTHANDLER
 	 * @param id the id of the team
 	 * @param motd the motd of the team
 	 * @return true if successful
