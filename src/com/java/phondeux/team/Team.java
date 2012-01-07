@@ -22,6 +22,7 @@ public class Team extends JavaPlugin{
 	public EventHandler eh;
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
+	private final TeamEntityListener entityListener = new TeamEntityListener(this);
 
 	@Override
 	public void onDisable() {
@@ -35,6 +36,7 @@ public class Team extends JavaPlugin{
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DEATH, this.entityListener, Event.Priority.Monitor, this);
 
 		initialize();
 		
@@ -106,5 +108,15 @@ public class Team extends JavaPlugin{
 				}
 			}
 		}, EventHandler.Type.PlayerLeave);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				if (parent != 0) {
+					getServer().broadcastMessage(th.playerGetName(parent) + ChatColor.GOLD + " killed " + ChatColor.WHITE + th.playerGetName(child) + ChatColor.GOLD + ", data: " + data);
+				} else {
+					getServer().broadcastMessage(th.playerGetName(child) + ChatColor.GOLD + " was killed, data: " + data);
+				}
+			}
+		}, EventHandler.Type.PlayerDeath);
 	}
 }

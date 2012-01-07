@@ -10,7 +10,7 @@ public class EventHandler {
 	private final EventFactory ef;
 	private EnumMap<Type, ArrayList<EventCallback>> callbackmap;
 	
-	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose, PlayerJoin, PlayerLeave, PlayerKill};
+	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose, PlayerJoin, PlayerLeave, PlayerDeath};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -39,7 +39,7 @@ public class EventHandler {
 		//Parent: player id, child: team id
 		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (5, ?, ?);");
 		//Parent: killer id, child: victim id
-		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (6, ?, ?);");
+		cm.prepareStatement("newEventPlayerDeath", "insert into events (type, parent, child, data) values (6, ?, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -108,11 +108,12 @@ public class EventHandler {
 			cm.executePreparedUpdate("newEventPlayerLeave");
 		}
 		
-		public void PlayerKill(int killerid, int victimid) throws SQLException {
-			DoCallback(Type.PlayerKill, killerid, victimid, null);
-			cm.getPreparedStatement("newEventPlayerKill").setInt(1, killerid);
-			cm.getPreparedStatement("newEventPlayerKill").setInt(2, victimid);
-			cm.executePreparedUpdate("newEventPlayerKill");
+		public void PlayerDeath(int killerid, int victimid, String data) throws SQLException {
+			DoCallback(Type.PlayerDeath, killerid, victimid, data);
+			cm.getPreparedStatement("newEventPlayerDeath").setInt(1, killerid);
+			cm.getPreparedStatement("newEventPlayerDeath").setInt(2, victimid);
+			cm.getPreparedStatement("newEventPlayerDeath").setString(3, data);
+			cm.executePreparedUpdate("newEventPlayerDeath");
 		}
 	}
 }
