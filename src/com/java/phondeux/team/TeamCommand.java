@@ -53,7 +53,7 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("Team names are limited to 8 characters.");
 					return true;
 				}
-				if (!(args[1].matches("\\w"))) {
+				if (!(args[1].matches("\\b\\w+"))) {
 					player.sendMessage("Team names may be made up of only a-z, A-Z, or 0-9");
 					return true;
 				}
