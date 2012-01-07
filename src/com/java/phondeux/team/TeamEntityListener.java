@@ -27,7 +27,7 @@ public class TeamEntityListener extends EntityListener {
 		String msg = "";
 		
 		if (entity == null) {
-			msg = "UKNOWN";
+			msg = "UNKNOWN";
 		} else if (entity instanceof Blaze) {
 			msg = "BLAZE";
 		} else if (entity instanceof CaveSpider) {
@@ -47,13 +47,10 @@ public class TeamEntityListener extends EntityListener {
 		} else if (entity instanceof PigZombie) {
 			msg = "PIGZOMBIE";
 		} else if (entity instanceof Player) {
-			String weaponType = ((Player) entity).getItemInHand().getType().toString();
-			if (weaponType.endsWith("_AXE") || weaponType.endsWith("_HOE") || weaponType.endsWith("_PICKAXE") || weaponType.endsWith("_SPADE") || weaponType.endsWith("_SWORD")) {
-				msg = "WEAPON";
-			} else if (weaponType.endsWith("BOW")) {
-				msg = "BOW";
-			} else {
+			if (((Player) entity).getItemInHand().getAmount() == 0) {
 				msg = "FIST";
+			} else {
+				msg = ((Player) entity).getItemInHand().getType().toString();
 			}
 		} else if (entity instanceof Projectile) {
 			if (entity instanceof Arrow) {
@@ -103,7 +100,7 @@ public class TeamEntityListener extends EntityListener {
 				}
 				causeStr = getDeathMessage(killer);
 			} else if (cause == null) {
-				causeStr = "UNKOWN";
+				causeStr = "UNKNOWN";
 			} else {
 				switch (cause.getCause()) {
 					case CONTACT:
