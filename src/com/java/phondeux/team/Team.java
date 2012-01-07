@@ -1,4 +1,3 @@
-//The Package
 package com.java.phondeux.team;
 
 import java.sql.SQLException;
@@ -14,22 +13,20 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Phondeux
  */
-//Starts the class
 public class Team extends JavaPlugin{
 	protected Logger log;
-	protected TeamHandler tdbh;
+	protected ConnectionManager cm;
+	protected TeamHandler th;
+	public EventHandler eh;
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
 
 	@Override
-	//When the plugin is disabled this method is called.
 	public void onDisable() {
-		//Print "Team Disabled" on the log.
-		System.out.println("Team Disabled");
+		System.out.println("[team] disabled");
 	}
 
 	@Override
-	//When the plugin is enabled this method is called.
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
 		getCommand("team").setExecutor(new TeamCommand(this));
@@ -39,16 +36,18 @@ public class Team extends JavaPlugin{
 
 		initialize();
 		
-		//Get the infomation from the yml file.
         PluginDescriptionFile pdfFile = this.getDescription();
-        //Print that the plugin has been enabled!
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
 	}
 
 	private void initialize() {
-        log.info("[Team] Initializing TeamHandler");
         try {
-        	tdbh = new TeamHandler(this, "localhost/teamdata", "teamuser", "teampass");
+        	log.info("[Team] Connecting to database..");
+        	cm = new ConnectionManager("localhost/teamdata", "teamuser", "teampass");
+        	log.info("[Team] Initializing TeamHandler..");
+        	th = new TeamHandler(this, cm);
+        	log.info("[Team] Initializing EventHandler..");
+        	eh = new EventHandler(this, cm);        	
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");
@@ -60,6 +59,5 @@ public class Team extends JavaPlugin{
         	getPluginLoader().disablePlugin(this);
         	return;
         }
-
 	}
 }

@@ -6,17 +6,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TeamHandler {
+	private final Team parent;
 	private final ConnectionManager cm;
 	private HashMap<String, Integer> idbindteam;
 	private HashMap<String, Integer> idbindplayer;
 	
-	public TeamHandler(Team parent, String database, String user, String password) throws SQLException, ClassNotFoundException {
-		  cm = new ConnectionManager(database, user, password);
-		  idbindteam = new HashMap<String, Integer>();
-		  idbindplayer = new HashMap<String, Integer>();
-		  initTables();
-		  initStatements();
-		  populateMap();
+	public TeamHandler(Team parent, ConnectionManager cm) throws SQLException {
+		this.parent = parent;
+		this.cm = cm;
+		idbindteam = new HashMap<String, Integer>();
+		idbindplayer = new HashMap<String, Integer>();
+		initTables();
+		initStatements();
+		populateMap();
 	}
 	
 	public ConnectionManager ConnectionManager() {
@@ -166,7 +168,7 @@ public class TeamHandler {
 		cm.getPreparedStatement("deleteTeam").setInt(1, id);
 		cm.executePreparedUpdate("deleteTeam");
 		
-		idbindteam.keySet().remove(id);
+		idbindteam.values().remove(id);
 		
 		return true;
 	}
@@ -450,8 +452,8 @@ public class TeamHandler {
 	 * @throws SQLException
 	 */
 	public ResultSet playerGet(Integer id) throws SQLException {
-		cm.getPreparedStatement("playerGet").setInt(1, id);
-		return cm.executePreparedQuery("playerGet");
+		cm.getPreparedStatement("getPlayer").setInt(1, id);
+		return cm.executePreparedQuery("getPlayer");
 	}
 	
 	/**
