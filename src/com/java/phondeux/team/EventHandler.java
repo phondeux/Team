@@ -10,7 +10,9 @@ public class EventHandler {
 	private final EventFactory ef;
 	private EnumMap<Type, ArrayList<EventCallback>> callbackmap;
 	
-	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose, PlayerJoin, PlayerLeave, PlayerDeath};
+	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose,
+					  PlayerJoin, PlayerLeave, PlayerDeath, PlayerInvite,
+					  PlayerDeinvite};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -40,6 +42,10 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (5, ?, ?);");
 		//Parent: killer id, child: victim id
 		cm.prepareStatement("newEventPlayerDeath", "insert into events (type, parent, child, data) values (6, ?, ?, ?);");
+		//Parent: player id, child: team id
+		cm.prepareStatement("newEventPlayerInvite", "insert into events (type, parent, child) values (7, ?, ?);");
+		//Parent: player id, child: team id
+		cm.prepareStatement("newEventPlayerDeinvite", "insert into events (type, parent, child) values (8, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -114,6 +120,20 @@ public class EventHandler {
 			cm.getPreparedStatement("newEventPlayerDeath").setInt(2, victimid);
 			cm.getPreparedStatement("newEventPlayerDeath").setString(3, data);
 			cm.executePreparedUpdate("newEventPlayerDeath");
+		}
+		
+		public void PlayerInvite(int playerid, int teamid) throws SQLException {
+			DoCallback(Type.PlayerInvite, playerid, teamid, null);
+			cm.getPreparedStatement("newEventPlayerInvite").setInt(1, playerid);
+			cm.getPreparedStatement("newEventPlayerInvite").setInt(2, teamid);
+			cm.executePreparedUpdate("newEventPlayerInvite");
+		}
+		
+		public void PlayerDeinvite(int playerid, int teamid) throws SQLException {
+			DoCallback(Type.PlayerDeinvite, playerid, teamid, null);
+			cm.getPreparedStatement("newEventPlayerDeinvite").setInt(1, playerid);
+			cm.getPreparedStatement("newEventPlayerDeinvite").setInt(2, teamid);
+			cm.executePreparedUpdate("newEventPlayerDeinvite");
 		}
 	}
 }
