@@ -12,7 +12,7 @@ public class EventHandler {
 	
 	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose,
 					  PlayerJoin, PlayerLeave, PlayerDeath, PlayerInvite,
-					  PlayerDeinvite, TeamMotd};
+					  PlayerDeinvite, TeamMotd, PlayerKicked};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -48,6 +48,8 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerDeinvite", "insert into events (type, parent, child, data) values (8, ?, ?, ?);");
 		//Parent: player id, child: team id, data: motd
 		cm.prepareStatement("newEventTeamMotd", "insert into events (type, parent, child, data) values (9, ?, ?, ?);");
+		//Parent: player id, child: team id, data: kicker id
+		cm.prepareStatement("newEventPlayerKicked", "insert into events (type, parent, child, data) values (10, ?, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -146,6 +148,14 @@ public class EventHandler {
 			cm.getPreparedStatement("newEventTeamMotd").setInt(2, teamid);
 			cm.getPreparedStatement("newEventTeamMotd").setString(3, motd);
 			cm.executePreparedUpdate("newEventTeamMotd");
+		}
+		
+		public void PlayerKicked(int playerid, int teamid, Integer kicker) throws SQLException {
+			DoCallback(Type.PlayerKicked, playerid, teamid, kicker.toString());
+			cm.getPreparedStatement("newEventPlayerKicked").setInt(1, playerid);
+			cm.getPreparedStatement("newEventPlayerKicked").setInt(2, teamid);
+			cm.getPreparedStatement("newEventPlayerKicked").setString(3, kicker.toString());
+			cm.executePreparedUpdate("newEventPlayerKicked");
 		}
 	}
 }

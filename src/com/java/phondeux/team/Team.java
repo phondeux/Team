@@ -76,39 +76,45 @@ public class Team extends JavaPlugin{
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
 				getServer().broadcastMessage(ChatColor.GOLD + th.playerGetName(parent) + " disbanded the team " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
-				th.teamSendToMembers(child, ChatColor.RED + "Your team has been disbanded.");
+				th.teamSendToMembers(child, ChatColor.RED + "disbanded.");
 			}
 		}, EventHandler.Type.TeamDisband);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, th.teamGetName(child) + ChatColor.GOLD + ": " + data);
+				th.teamSendToMembers(child, data);
 			}
 		}, EventHandler.Type.TeamMotd);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " joined " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " joined!");
 			}
 		}, EventHandler.Type.PlayerJoin);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " left " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " left!");
 			}
 		}, EventHandler.Type.PlayerLeave);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is now invited to " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is now invited!");
 			}
 		}, EventHandler.Type.PlayerInvite);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is no longer invited to " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is no longer invited!");
 			}
 		}, EventHandler.Type.PlayerDeinvite);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " was kicked!");
+			}
+		}, EventHandler.Type.PlayerKicked);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {

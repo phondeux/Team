@@ -45,6 +45,10 @@ public class TeamCommand implements CommandExecutor {
 		}
 		if (args.length > 0) {
 			if (args[0].matches("create")) {
+				if (args.length < 2) {
+					player.sendMessage("No team specified.");
+					return true;
+				}
 				if (pStatus != 0) {
 					player.sendMessage("You are already on a team.");
 					return true;
@@ -53,7 +57,7 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("Team names are limited to 8 characters.");
 					return true;
 				}
-				if (!(args[1].matches("\\b\\w+"))) {
+				if (!(args[1].matches("\\w+"))) {
 					player.sendMessage("Team names may be made up of only a-z, A-Z, or 0-9");
 					return true;
 				}
@@ -94,6 +98,10 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("invite")) {
+				if (args.length < 2) {
+					player.sendMessage("No player specified.");
+					return true;
+				}
 				if (pStatus != 3 && pStatus != 2) {
 					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
 					return true;
@@ -112,6 +120,10 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("deinvite")) {
+				if (args.length < 2) {
+					player.sendMessage("No player specified.");
+					return true;
+				}
 				if (pStatus != 3 && pStatus != 2) {
 					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
 					return true;
@@ -134,12 +146,12 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("setmotd")) {
-				if (pStatus != 3 && pStatus != 2) {
-					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
-					return true;
-				}
 				if (args.length < 2) {
 					player.sendMessage("No motd specified.");
+					return true;
+				}
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
 					return true;
 				}
 				String motd = "";
@@ -156,9 +168,32 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("description")) {
+				if (args.length < 2) {
+					player.sendMessage("No description specified.");
+					return true;
+				}
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
+					return true;
+				}
+				String descr = "";
+				for (int i = 1; i < args.length; i++) {
+					descr += args[i];
+					if (i != args.length - 1) descr += " ";
+				}
+				try {
+					plugin.th.teamSetDescription(pTeamID, descr);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("join")) {
+				if (args.length < 2) {
+					player.sendMessage("No team specified.");
+					return true;
+				}
 				if (pStatus != 0) {
 					player.sendMessage("You're already on a team.");
 					return true;
@@ -185,7 +220,7 @@ public class TeamCommand implements CommandExecutor {
 			}
 			if (args[0].matches("leave")) {
 				if (pStatus == 0) {
-					player.sendMessage("You aren't on a team.");
+					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
 				}
 				String teamname = plugin.th.teamGetName(pTeamID);
@@ -194,10 +229,9 @@ public class TeamCommand implements CommandExecutor {
 					return true;
 				}
 				try {
+					plugin.eh.CreateEvent().PlayerLeave(pID, pTeamID);
 					plugin.th.playerSetStatus(pID, 0);
 					plugin.th.playerSetTeam(pID, 0);
-					plugin.eh.CreateEvent().PlayerLeave(pID, pTeamID);
-					player.sendMessage("You've left " + teamname + ".");
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -205,6 +239,34 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("kick")) {
+				if (args.length < 2) {
+					player.sendMessage("No player specified.");
+					return true;
+				}
+				if (pStatus != 3 && pStatus != 2) {
+					player.sendMessage("Either you aren't on a team, or you aren't a mod/owner.");
+					return true;
+				}
+				Integer playerid = plugin.th.playerGetID(args[1]);
+				if (playerid == null) {
+					player.sendMessage("The player " + args[1] + " doesn't exist.");
+					return true;
+				}
+				try {
+					if (plugin.th.playerGetTeam(playerid) != pTeamID) {
+						player.sendMessage("The player " + args[1] + " isn't on your team.");
+						return true;
+					}
+					if (plugin.th.playerGetStatus(playerid) >= pStatus) {
+						player.sendMessage("You can't kick " + args[1] + ".");
+					}
+					plugin.eh.CreateEvent().PlayerKicked(playerid, pTeamID, pID);
+					plugin.th.playerSetStatus(playerid, 0);
+					plugin.th.playerSetTeam(playerid, 0);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("open")) {
@@ -264,6 +326,7 @@ public class TeamCommand implements CommandExecutor {
 						for (String s2 : tmp2) {
 							msg += s2 + ", ";
 						}
+						msg = msg.substring(0, msg.length() - 2);
 						player.sendMessage(msg);
 					}
 					if (tmp.size() == 0) {
@@ -280,7 +343,7 @@ public class TeamCommand implements CommandExecutor {
 			player.sendMessage("Usage: /team [command]");
 			player.sendMessage(ChatColor.RED + "create    disband    kick");
 			player.sendMessage(ChatColor.RED + "invite    open       close");
-			player.sendMessage(ChatColor.RED + "deinvite  promote    demote");
+			player.sendMessage(ChatColor.RED + "deinvite  promote    demote    setmotd");
 			player.sendMessage(ChatColor.RED + "join      leave      chat      who");
 			player.sendMessage(ChatColor.RED + "help - " + ChatColor.WHITE + "for details on each");
 			return true;

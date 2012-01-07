@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
+
 public class TeamHandler {
 	private final Team parent;
 	private final ConnectionManager cm;
@@ -105,11 +107,12 @@ public class TeamHandler {
 	//---------------------Team methods
 	
 	public void teamSendToMembers(Integer id, String msg) {
+		String prefix = ChatColor.GOLD + "[" + ChatColor.WHITE + teamGetName(id) + ChatColor.GOLD + "] " + ChatColor.WHITE;
 		try {
 			ArrayList<String> members = playersGetNameOnTeam(id);
 			for (String m : members) {
 				if (parent.getServer().getPlayer(m) != null) {
-					parent.getServer().getPlayer(m).sendMessage(msg);
+					parent.getServer().getPlayer(m).sendMessage(prefix + msg);
 				}
 			}
 		} catch (SQLException e) {
