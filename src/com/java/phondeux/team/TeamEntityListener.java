@@ -138,11 +138,12 @@ public class TeamEntityListener extends EntityListener {
 						causeStr = "VOID";
 						break;
 					}
-				try {
-					parent.eh.CreateEvent().PlayerDeath(killerid, parent.th.playerGetID(victim), causeStr);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+			}
+			
+			try {
+				parent.eh.CreateEvent().PlayerDeath(killerid, parent.th.playerGetID(victim), causeStr);
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 		}
 	}
