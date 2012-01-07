@@ -35,11 +35,11 @@ public class TeamCommand implements CommandExecutor {
 		//					  /tc will also be used to team chat for convenience
 		//		help		- a list of the commands and how to use them
 		Player player = (Player)sender;
-		Integer pID = plugin.tdbh.playerGetID(player.getName());
+		Integer pID = plugin.th.playerGetID(player.getName());
 		Integer pStatus = 0, pTeamID = 0;
 		try {
-			pStatus = plugin.tdbh.playerGetStatus(pID);
-			pTeamID = plugin.tdbh.playerGetTeam(pID);
+			pStatus = plugin.th.playerGetStatus(pID);
+			pTeamID = plugin.th.playerGetTeam(pID);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -53,19 +53,21 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("Team names are limited to 8 characters.");
 					return true;
 				}
-				if (!(args[1].matches("[a-zA-Z0-9]"))) {
+				if (!(args[1].matches("\\w"))) {
 					player.sendMessage("Team names may be made up of only a-z, A-Z, or 0-9");
+					return true;
 				}
-				if (plugin.tdbh.teamExists(args[1])) {
+				if (plugin.th.teamExists(args[1])) {
 					player.sendMessage("A team with that name already exists.");
 					return true;
 				}
 				
 				try {
-					int teamid = plugin.tdbh.teamCreate(args[1]);
-					plugin.tdbh.playerSetTeam(pID, teamid);
-					plugin.tdbh.playerSetStatus(pID, 3);
+					int teamid = plugin.th.teamCreate(args[1]);
+					plugin.th.playerSetTeam(pID, teamid);
+					plugin.th.playerSetStatus(pID, 3);
 					player.sendMessage("Team " + args[1] + " created successfully!");
+					plugin.eh.CreateEvent().TeamCreate(pID, teamid);
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -79,18 +81,19 @@ public class TeamCommand implements CommandExecutor {
 					return true;
 				}
 				try {
-					plugin.tdbh.teamDelete(pTeamID);
-					ArrayList<String> members = plugin.tdbh.playersGetNameOnTeam(pTeamID);
+					plugin.th.teamDelete(pTeamID);
+					ArrayList<String> members = plugin.th.playersGetNameOnTeam(pTeamID);
 					for (String m : members) {
-						plugin.tdbh.playerSetStatus(plugin.tdbh.playerGetID(m), 0);
-						plugin.tdbh.playerSetTeam(plugin.tdbh.playerGetID(m), 0);
+						plugin.th.playerSetStatus(plugin.th.playerGetID(m), 0);
+						plugin.th.playerSetTeam(plugin.th.playerGetID(m), 0);
 						if (plugin.getServer().getPlayer(m) != null) {
 							plugin.getServer().getPlayer(m).sendMessage("Your team has been disbanded.");
 						}
 					}
-					plugin.tdbh.playerSetStatus(pID, 0);
-					player.sendMessage("Your has been disbanded.");
+					plugin.th.playerSetStatus(pID, 0);
+					plugin.eh.CreateEvent().TeamDisband(pID, pTeamID);
 				} catch (SQLException e) {
+					player.sendMessage("Database error.");
 					e.printStackTrace();
 				}
 				return true;
@@ -105,18 +108,87 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("join")) {
+				if (pStatus != 0) {
+					player.sendMessage("You're already on a team.");
+					return true;
+				}
+				Integer teamid = plugin.th.teamGetID(args[1]);
+				if (!plugin.th.teamExists(teamid)) {
+					player.sendMessage("The team " + args[1] + " doesn't exist.");
+					return true;
+				}
+				try {
+					if (plugin.th.teamGetStatus(teamid) == 1) {
+						player.sendMessage(args[1] + " is closed.");
+						return true;
+					}
+					plugin.th.playerSetStatus(pID, 1);
+					plugin.th.playerSetTeam(pID, teamid);
+					plugin.eh.CreateEvent().PlayerJoin(pID, teamid);
+					player.sendMessage("You've joined " + args[1] + ".");
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("leave")) {
+				if (pStatus == 0) {
+					player.sendMessage("You aren't on a team.");
+					return true;
+				}
+				if (pStatus == 3) {
+					player.sendMessage("You own your team, you must disband it.");
+					return true;
+				}
+				try {
+					plugin.th.playerSetStatus(pID, 0);
+					plugin.th.playerSetTeam(pID, 0);
+					plugin.eh.CreateEvent().PlayerLeave(pID, pTeamID);
+					player.sendMessage("You've left your team.");
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("kick")) {
 				return true;
 			}
 			if (args[0].matches("open")) {
+				if (pStatus != 3) {
+					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					return true;
+				}
+				try {
+					if (plugin.th.teamGetStatus(pTeamID) == 0) {
+						player.sendMessage("Your team is already open.");
+						return true;
+					}
+					plugin.th.teamSetStatus(pTeamID, 0);
+					plugin.eh.CreateEvent().TeamOpen(pID, pTeamID);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("close")) {
+				if (pStatus != 3) {
+					player.sendMessage("Either you aren't on a team, or you are not the owner.");
+					return true;
+				}
+				try {
+					if (plugin.th.teamGetStatus(pTeamID) == 1) {
+						player.sendMessage("Your team is already closed.");
+						return true;
+					}
+					plugin.th.teamSetStatus(pTeamID, 1);
+					plugin.eh.CreateEvent().TeamClose(pID, pTeamID);
+				} catch (SQLException e) {
+					player.sendMessage("Database error.");
+					e.printStackTrace();
+				}
 				return true;
 			}
 			if (args[0].matches("promote")) {
@@ -130,11 +202,11 @@ public class TeamCommand implements CommandExecutor {
 			}
 			if (args[0].matches("help")) {
 				try {
-					ArrayList<String> tmp = plugin.tdbh.teamGetList();
+					ArrayList<String> tmp = plugin.th.teamGetList();
 					for (String s : tmp) {
 						String msg = s + ": ";
-						int teamid = plugin.tdbh.teamGetID(s);
-						ArrayList<String> tmp2 = plugin.tdbh.playersGetNameOnTeam(teamid);
+						int teamid = plugin.th.teamGetID(s);
+						ArrayList<String> tmp2 = plugin.th.playersGetNameOnTeam(teamid);
 						for (String s2 : tmp2) {
 							msg += s2 + ", ";
 						}
