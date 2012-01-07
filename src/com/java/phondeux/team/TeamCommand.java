@@ -86,11 +86,7 @@ public class TeamCommand implements CommandExecutor {
 					for (String m : members) {
 						plugin.th.playerSetStatus(plugin.th.playerGetID(m), 0);
 						plugin.th.playerSetTeam(plugin.th.playerGetID(m), 0);
-						if (plugin.getServer().getPlayer(m) != null) {
-							plugin.getServer().getPlayer(m).sendMessage(ChatColor.RED + "Your team has been disbanded.");
-						}
 					}
-					plugin.th.playerSetStatus(pID, 0);
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();

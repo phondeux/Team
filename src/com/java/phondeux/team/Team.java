@@ -37,6 +37,7 @@ public class Team extends JavaPlugin{
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_DEATH, this.entityListener, Event.Priority.Monitor, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, this.entityListener, Event.Priority.Monitor, this);
 
 		initialize();
 		
@@ -76,38 +77,39 @@ public class Team extends JavaPlugin{
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
 				getServer().broadcastMessage(ChatColor.GOLD + th.playerGetName(parent) + " disbanded the team " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+				th.teamSendToMembers(child, ChatColor.RED + "Your team has been disbanded.");
 			}
 		}, EventHandler.Type.TeamDisband);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				try {
-					ArrayList<String> members = th.playersGetNameOnTeam(child);
-					for (String m : members) {
-						if (getServer().getPlayer(m) != null) {
-							getServer().getPlayer(m).sendMessage(ChatColor.GOLD + th.playerGetName(parent) + " joined " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
-						}
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				th.teamSendToMembers(child, th.teamGetName(child) + ChatColor.GOLD + ": " + data);
+			}
+		}, EventHandler.Type.TeamMotd);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " joined " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
 			}
 		}, EventHandler.Type.PlayerJoin);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				try {
-					ArrayList<String> members = th.playersGetNameOnTeam(child);
-					for (String m : members) {
-						if (getServer().getPlayer(m) != null) {
-							getServer().getPlayer(m).sendMessage(ChatColor.GOLD + th.playerGetName(parent) + " left " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
-						}
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " left " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
 			}
 		}, EventHandler.Type.PlayerLeave);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is now invited to " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+			}
+		}, EventHandler.Type.PlayerInvite);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				th.teamSendToMembers(child, ChatColor.GOLD + th.playerGetName(parent) + " is no longer invited to " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+			}
+		}, EventHandler.Type.PlayerDeinvite);
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
