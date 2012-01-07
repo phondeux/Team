@@ -12,7 +12,7 @@ public class EventHandler {
 	
 	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose,
 					  PlayerJoin, PlayerLeave, PlayerDeath, PlayerInvite,
-					  PlayerDeinvite};
+					  PlayerDeinvite, TeamMotd};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -40,12 +40,14 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerJoin", "insert into events (type, parent, child) values (4, ?, ?);");
 		//Parent: player id, child: team id
 		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (5, ?, ?);");
-		//Parent: killer id, child: victim id
+		//Parent: killer id, child: victim id, data: cause
 		cm.prepareStatement("newEventPlayerDeath", "insert into events (type, parent, child, data) values (6, ?, ?, ?);");
 		//Parent: player id, child: team id, data: inviter id
 		cm.prepareStatement("newEventPlayerInvite", "insert into events (type, parent, child, data) values (7, ?, ?, ?);");
 		//Parent: player id, child: team id, data: deinviter id
 		cm.prepareStatement("newEventPlayerDeinvite", "insert into events (type, parent, child, data) values (8, ?, ?, ?);");
+		//Parent: player id, child: team id, data: motd
+		cm.prepareStatement("newEventTeamMotd", "insert into events (type, parent, child, data) values (9, ?, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -136,6 +138,14 @@ public class EventHandler {
 			cm.getPreparedStatement("newEventPlayerDeinvite").setInt(2, teamid);
 			cm.getPreparedStatement("newEventPlayerDeinvite").setString(3, deinviterid.toString());
 			cm.executePreparedUpdate("newEventPlayerDeinvite");
+		}
+		
+		public void TeamMotd(int playerid, int teamid, String motd) throws SQLException {
+			DoCallback(Type.TeamMotd, playerid, teamid, motd);
+			cm.getPreparedStatement("newEventTeamMotd").setInt(1, playerid);
+			cm.getPreparedStatement("newEventTeamMotd").setInt(2, teamid);
+			cm.getPreparedStatement("newEventTeamMotd").setString(3, motd);
+			cm.executePreparedUpdate("newEventTeamMotd");
 		}
 	}
 }
