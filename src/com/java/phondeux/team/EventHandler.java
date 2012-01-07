@@ -42,10 +42,10 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (5, ?, ?);");
 		//Parent: killer id, child: victim id
 		cm.prepareStatement("newEventPlayerDeath", "insert into events (type, parent, child, data) values (6, ?, ?, ?);");
-		//Parent: player id, child: team id
-		cm.prepareStatement("newEventPlayerInvite", "insert into events (type, parent, child) values (7, ?, ?);");
-		//Parent: player id, child: team id
-		cm.prepareStatement("newEventPlayerDeinvite", "insert into events (type, parent, child) values (8, ?, ?);");
+		//Parent: player id, child: team id, data: inviter id
+		cm.prepareStatement("newEventPlayerInvite", "insert into events (type, parent, child, data) values (7, ?, ?, ?);");
+		//Parent: player id, child: team id, data: deinviter id
+		cm.prepareStatement("newEventPlayerDeinvite", "insert into events (type, parent, child, data) values (8, ?, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -122,17 +122,19 @@ public class EventHandler {
 			cm.executePreparedUpdate("newEventPlayerDeath");
 		}
 		
-		public void PlayerInvite(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.PlayerInvite, playerid, teamid, null);
+		public void PlayerInvite(int playerid, int teamid, Integer inviterid) throws SQLException {
+			DoCallback(Type.PlayerInvite, playerid, teamid, inviterid.toString());
 			cm.getPreparedStatement("newEventPlayerInvite").setInt(1, playerid);
 			cm.getPreparedStatement("newEventPlayerInvite").setInt(2, teamid);
+			cm.getPreparedStatement("newEventPlayerInvite").setString(3, inviterid.toString());
 			cm.executePreparedUpdate("newEventPlayerInvite");
 		}
 		
-		public void PlayerDeinvite(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.PlayerDeinvite, playerid, teamid, null);
+		public void PlayerDeinvite(int playerid, int teamid, Integer deinviterid) throws SQLException {
+			DoCallback(Type.PlayerDeinvite, playerid, teamid, deinviterid.toString());
 			cm.getPreparedStatement("newEventPlayerDeinvite").setInt(1, playerid);
 			cm.getPreparedStatement("newEventPlayerDeinvite").setInt(2, teamid);
+			cm.getPreparedStatement("newEventPlayerDeinvite").setString(3, deinviterid.toString());
 			cm.executePreparedUpdate("newEventPlayerDeinvite");
 		}
 	}
