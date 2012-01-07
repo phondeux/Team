@@ -10,7 +10,7 @@ public class EventHandler {
 	private final EventFactory ef;
 	private EnumMap<Type, ArrayList<EventCallback>> callbackmap;
 	
-	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose, PlayerJoin, PlayerLeave};
+	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose, PlayerJoin, PlayerLeave, PlayerKill};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -38,6 +38,8 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerJoin", "insert into events (type, parent, child) values (4, ?, ?);");
 		//Parent: player id, child: team id
 		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (5, ?, ?);");
+		//Parent: killer id, child: victim id
+		cm.prepareStatement("newEventPlayerLeave", "insert into events (type, parent, child) values (6, ?, ?);");
 	}
 	
 	public interface EventCallback {
@@ -79,31 +81,38 @@ public class EventHandler {
 		}
 		
 		public void TeamOpen(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.TeamDisband, playerid, teamid, null);
+			DoCallback(Type.TeamOpen, playerid, teamid, null);
 			cm.getPreparedStatement("newEventTeamOpen").setInt(1, playerid);
 			cm.getPreparedStatement("newEventTeamOpen").setInt(2, teamid);
 			cm.executePreparedUpdate("newEventTeamOpen");
 		}
 		
 		public void TeamClose(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.TeamDisband, playerid, teamid, null);
+			DoCallback(Type.TeamClose, playerid, teamid, null);
 			cm.getPreparedStatement("newEventTeamClose").setInt(1, playerid);
 			cm.getPreparedStatement("newEventTeamClose").setInt(2, teamid);
 			cm.executePreparedUpdate("newEventTeamClose");
 		}
 		
 		public void PlayerJoin(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.TeamDisband, playerid, teamid, null);
+			DoCallback(Type.PlayerJoin, playerid, teamid, null);
 			cm.getPreparedStatement("newEventPlayerJoin").setInt(1, playerid);
 			cm.getPreparedStatement("newEventPlayerJoin").setInt(2, teamid);
 			cm.executePreparedUpdate("newEventPlayerJoin");
 		}
 		
 		public void PlayerLeave(int playerid, int teamid) throws SQLException {
-			DoCallback(Type.TeamDisband, playerid, teamid, null);
+			DoCallback(Type.PlayerLeave, playerid, teamid, null);
 			cm.getPreparedStatement("newEventPlayerLeave").setInt(1, playerid);
 			cm.getPreparedStatement("newEventPlayerLeave").setInt(2, teamid);
 			cm.executePreparedUpdate("newEventPlayerLeave");
+		}
+		
+		public void PlayerKill(int killerid, int victimid) throws SQLException {
+			DoCallback(Type.PlayerKill, killerid, victimid, null);
+			cm.getPreparedStatement("newEventPlayerKill").setInt(1, killerid);
+			cm.getPreparedStatement("newEventPlayerKill").setInt(2, victimid);
+			cm.executePreparedUpdate("newEventPlayerKill");
 		}
 	}
 }

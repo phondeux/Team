@@ -53,7 +53,7 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("Team names are limited to 8 characters.");
 					return true;
 				}
-				if (!(args[1].matches("\\w"))) {
+				if (!(args[1].matches("\\w+"))) {
 					player.sendMessage("Team names may be made up of only a-z, A-Z, or 0-9");
 					return true;
 				}
@@ -66,7 +66,6 @@ public class TeamCommand implements CommandExecutor {
 					int teamid = plugin.th.teamCreate(args[1]);
 					plugin.th.playerSetTeam(pID, teamid);
 					plugin.th.playerSetStatus(pID, 3);
-					player.sendMessage("Team " + args[1] + " created successfully!");
 					plugin.eh.CreateEvent().TeamCreate(pID, teamid);
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
@@ -81,17 +80,17 @@ public class TeamCommand implements CommandExecutor {
 					return true;
 				}
 				try {
+					plugin.eh.CreateEvent().TeamDisband(pID, pTeamID);
 					plugin.th.teamDelete(pTeamID);
 					ArrayList<String> members = plugin.th.playersGetNameOnTeam(pTeamID);
 					for (String m : members) {
 						plugin.th.playerSetStatus(plugin.th.playerGetID(m), 0);
 						plugin.th.playerSetTeam(plugin.th.playerGetID(m), 0);
 						if (plugin.getServer().getPlayer(m) != null) {
-							plugin.getServer().getPlayer(m).sendMessage("Your team has been disbanded.");
+							plugin.getServer().getPlayer(m).sendMessage(ChatColor.RED + "Your team has been disbanded.");
 						}
 					}
 					plugin.th.playerSetStatus(pID, 0);
-					plugin.eh.CreateEvent().TeamDisband(pID, pTeamID);
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -117,15 +116,15 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("The team " + args[1] + " doesn't exist.");
 					return true;
 				}
+				String teamname = plugin.th.teamGetName(teamid);
 				try {
 					if (plugin.th.teamGetStatus(teamid) == 1) {
-						player.sendMessage(args[1] + " is closed.");
+						player.sendMessage(teamname + " is closed.");
 						return true;
 					}
 					plugin.th.playerSetStatus(pID, 1);
 					plugin.th.playerSetTeam(pID, teamid);
 					plugin.eh.CreateEvent().PlayerJoin(pID, teamid);
-					player.sendMessage("You've joined " + args[1] + ".");
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -137,15 +136,16 @@ public class TeamCommand implements CommandExecutor {
 					player.sendMessage("You aren't on a team.");
 					return true;
 				}
+				String teamname = plugin.th.teamGetName(pTeamID);
 				if (pStatus == 3) {
-					player.sendMessage("You own your team, you must disband it.");
+					player.sendMessage("You own " + teamname + ", you must disband it.");
 					return true;
 				}
 				try {
 					plugin.th.playerSetStatus(pID, 0);
 					plugin.th.playerSetTeam(pID, 0);
 					plugin.eh.CreateEvent().PlayerLeave(pID, pTeamID);
-					player.sendMessage("You've left your team.");
+					player.sendMessage("You've left " + teamname + ".");
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -167,6 +167,7 @@ public class TeamCommand implements CommandExecutor {
 					}
 					plugin.th.teamSetStatus(pTeamID, 0);
 					plugin.eh.CreateEvent().TeamOpen(pID, pTeamID);
+					player.sendMessage("Your team is now open.");
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -185,6 +186,7 @@ public class TeamCommand implements CommandExecutor {
 					}
 					plugin.th.teamSetStatus(pTeamID, 1);
 					plugin.eh.CreateEvent().TeamClose(pID, pTeamID);
+					player.sendMessage("Your team is now closed.");
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
