@@ -5,8 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.bukkit.ChatColor;
-
 public class TeamHandler {
 	private final Team parent;
 	private final ConnectionManager cm;
