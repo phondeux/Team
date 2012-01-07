@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TeamHandler {
-	private final Team parent;
 	private final ConnectionManager cm;
 	private HashMap<String, Integer> idbindteam;
 	private HashMap<String, Integer> idbindplayer;
 	
 	public TeamHandler(Team parent, ConnectionManager cm) throws SQLException {
-		this.parent = parent;
 		this.cm = cm;
 		idbindteam = new HashMap<String, Integer>();
 		idbindplayer = new HashMap<String, Integer>();

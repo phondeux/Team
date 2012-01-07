@@ -14,9 +14,9 @@ public class TeamPlayerListener extends PlayerListener {
 	
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		
-		if (!team.tdbh.playerExists(event.getPlayer().getName())) {
+		if (!team.th.playerExists(event.getPlayer().getName())) {
 			try {
-				team.tdbh.playerCreate(event.getPlayer().getName());
+				team.th.playerCreate(event.getPlayer().getName());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
