@@ -101,6 +101,21 @@ public class TeamHandler {
 	
 	//---------------------Team methods
 	
+	public String teamGetName(Integer id) {
+		if (!teamExists(id)) return null;
+		String name = "";
+		try {
+			cm.getPreparedStatement("getTeam").setInt(1, id);
+			ResultSet rs = cm.executePreparedQuery("getTeam");
+			rs.first();
+			name = rs.getString("name");
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return name;
+	}
+	
 	/**
 	 * Gets a team
 	 * @param name the name of the team
@@ -380,6 +395,21 @@ public class TeamHandler {
 	}
 	
 	//---------------------Player methods
+	
+	public String playerGetName(Integer id) {
+		if (!playerExists(id)) return null;
+		String name = "";
+		try {
+			cm.getPreparedStatement("getPlayer").setInt(1, id);
+			ResultSet rs = cm.executePreparedQuery("getPlayer");
+			rs.first();
+			name = rs.getString("name");
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return name;
+	}
 	
 	/**
 	 * Get the id of a player

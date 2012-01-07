@@ -1,8 +1,10 @@
 package com.java.phondeux.team;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -47,7 +49,7 @@ public class Team extends JavaPlugin{
         	log.info("[Team] Initializing TeamHandler..");
         	th = new TeamHandler(this, cm);
         	log.info("[Team] Initializing EventHandler..");
-        	eh = new EventHandler(this, cm);        	
+        	eh = new EventHandler(this, cm);
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");
@@ -59,5 +61,50 @@ public class Team extends JavaPlugin{
         	getPluginLoader().disablePlugin(this);
         	return;
         }
+        initializeEvents();
+	}
+	
+	private void initializeEvents() {
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				getServer().broadcastMessage(ChatColor.GOLD + th.playerGetName(parent) + " created a new team, " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+			}
+		}, EventHandler.Type.TeamCreate);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				getServer().broadcastMessage(ChatColor.GOLD + th.playerGetName(parent) + " disbanded the team " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+			}
+		}, EventHandler.Type.TeamDisband);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				try {
+					ArrayList<String> members = th.playersGetNameOnTeam(child);
+					for (String m : members) {
+						if (getServer().getPlayer(m) != null) {
+							getServer().getPlayer(m).sendMessage(ChatColor.GOLD + th.playerGetName(parent) + " joined " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+						}
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}, EventHandler.Type.PlayerJoin);
+		
+		eh.RegisterCallback(new EventHandler.EventCallback() {
+			public void run(int parent, int child, String data) {
+				try {
+					ArrayList<String> members = th.playersGetNameOnTeam(child);
+					for (String m : members) {
+						if (getServer().getPlayer(m) != null) {
+							getServer().getPlayer(m).sendMessage(ChatColor.GOLD + th.playerGetName(parent) + " left " + ChatColor.WHITE + th.teamGetName(child) + ChatColor.GOLD + "!");
+						}
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}, EventHandler.Type.PlayerLeave);
 	}
 }
