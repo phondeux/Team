@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 public class StatsHandler {
 	protected final Team parent;
@@ -24,6 +23,7 @@ public class StatsHandler {
 		cm.prepareStatement("statsPlayerDeath", "select * from events where type=6 and child=? order by id desc limit ?, 1;");
 		cm.prepareStatement("statsPlayerPvpDeath", "select * from events where type=6 and parent!=0 and child=? order by id desc limit ?, 1;");
 		cm.prepareStatement("statsPlayerKill", "select * from events where type=6 and parent=? order by id desc limit ?, 1;");
+		cm.prepareStatement("statsPlayerLastLogin", "select * from events where type=11 and parent=? order by id desc limit 0, 1;");
 	}
 	
 	public PlayerStats GetPlayerStats(Integer id) {
@@ -41,6 +41,9 @@ public class StatsHandler {
 			this.id = id;
 		}
 		
+		/**
+		 * Get the number of murders this player has committed
+		 */
 		public Integer NumKills() {
 			try {
 				cm.getPreparedStatement("statsPlayerNumKills").setInt(1, id);
@@ -55,6 +58,9 @@ public class StatsHandler {
 			return null;
 		}
 		
+		/**
+		 * Get the number of times this player has died in total
+		 */
 		public Integer NumDeaths() {
 			try {
 				cm.getPreparedStatement("statsPlayerNumDeaths").setInt(1, id);
@@ -69,6 +75,9 @@ public class StatsHandler {
 			return null;
 		}
 		
+		/**
+		 * Get the number of times this player has died as a result of someone stabbing him
+		 */
 		public Integer NumPvpDeaths() {
 			try {
 				cm.getPreparedStatement("statsPlayerNumPvpDeaths").setInt(1, id);
@@ -83,16 +92,52 @@ public class StatsHandler {
 			return null;
 		}
 		
+		/**
+		 * Get the last time this player logged in
+		 * @return the Date of the last login, or null if the player is online
+		 */
+		public Date LastLogin() {
+			if (parent.getServer().getPlayer(parent.th.playerGetName(id)).isOnline()) return null;
+			Date date = null;
+			
+			try {
+				cm.getPreparedStatement("statsPlayerLastLogin").setInt(1, id);
+				ResultSet rs = cm.executePreparedQuery("statsPlayerLastLogin");
+				if (!rs.first()) return null;
+				date = rs.getDate("timestamp");
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			return date;
+		}
+		
+		/**
+		 * Get detailed information on a death caused by anything
+		 * @param num the deaths number, where 0 is the most recent
+		 * @return a PlayerDeath object describing the event
+		 */
 		public PlayerDeath Death(Integer num) {
 			PlayerDeath ret = new PlayerDeath(num, false);
 			return ret.data == null ? null : ret;
 		}
 		
+		/**
+		 * Get detailed information on a death caused by another player
+		 * @param num the deaths number, where 0 is the most recent
+		 * @return a PlayerDeath object describing the event
+		 */
 		public PlayerDeath PvpDeath(Integer num) {
 			PlayerDeath ret = new PlayerDeath(num, true);
 			return ret.data == null ? null : ret;
 		}
 		
+		/**
+		 * Get detailed information on a kill
+		 * @param num the kills number, where 0 is the most recent
+		 * @return a PlayerKill object describing the event
+		 */
 		public PlayerKill Kill(Integer num) {
 			PlayerKill ret = new PlayerKill(num);
 			return ret.data == null ? null : ret;
@@ -157,10 +202,16 @@ public class StatsHandler {
 			}
 		}
 		
+		/**
+		 * Get the number of members on the given team
+		 */
 		public Integer NumMembers() {
 			return members.size();
 		}
 		
+		/**
+		 * Get the total number of kills of everyone on the team
+		 */
 		public Integer NumKills() {
 			Integer ret = 0;
 			
@@ -171,6 +222,9 @@ public class StatsHandler {
 			return ret;
 		}
 		
+		/**
+		 * Get the total number of deaths of everyone on the team
+		 */
 		public Integer NumDeaths() {
 			Integer ret = 0;
 			
@@ -181,6 +235,9 @@ public class StatsHandler {
 			return ret;
 		}
 		
+		/**
+		 * Get the total number of deaths caused by another player of everyone on the team
+		 */
 		public Integer NumPvpDeaths() {
 			Integer ret = 0;
 			
