@@ -23,6 +23,7 @@ public class TeamEntityListener extends EntityListener {
 		this.parent = team;
 	}
 	
+	//Mostly taken from https://github.com/gominecraft/DeathNotifier
 	public String getDeathMessage(Entity entity) {
 		String msg = "";
 		
@@ -56,6 +57,10 @@ public class TeamEntityListener extends EntityListener {
 			if (entity instanceof Arrow) {
 				if (((Arrow) entity).getShooter() == null) {
 					msg = "DISPENSER";
+				} else if (((Arrow) entity).getShooter() instanceof Skeleton) {
+					msg = "SKELETON";
+				} else if (((Arrow) entity).getShooter() instanceof Player) {
+					msg = "SHOT";
 				}
 			} else if (entity instanceof Fireball) {
 				if (((Fireball) entity).getShooter() instanceof Blaze) {
@@ -97,6 +102,12 @@ public class TeamEntityListener extends EntityListener {
 				Entity killer = ((EntityDamageByEntityEvent) cause).getDamager();
 				if (killer instanceof Player) {
 					killerid = parent.th.playerGetID(((Player) killer).getName());
+				} else if (killer instanceof Projectile) {
+					if (killer instanceof Arrow) {
+						if (((Arrow) killer).getShooter() instanceof Player) {
+							killerid = parent.th.playerGetID(((Player) ((Arrow) killer).getShooter()).getName());
+						}
+					}
 				}
 				causeStr = getDeathMessage(killer);
 			} else if (cause == null) {
