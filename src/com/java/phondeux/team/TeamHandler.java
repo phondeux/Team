@@ -111,7 +111,7 @@ public class TeamHandler {
 		try {
 			ArrayList<String> members = playersGetNameOnTeam(id);
 			for (String m : members) {
-				if (parent.getServer().getPlayer(m) != null) {
+				if (parent.getServer().getPlayer(m).isOnline()) {
 					parent.getServer().getPlayer(m).sendMessage(prefix + msg);
 				}
 			}
@@ -605,6 +605,20 @@ public class TeamHandler {
 		if (rs.first()) {
 			do {
 				ret.add(rs.getString("name"));
+			} while (rs.next());
+		}
+		
+		return ret;
+	}
+	
+	public ArrayList<Integer> playersGetIdOnTeam(Integer teamid) throws SQLException {
+		ArrayList<Integer> ret = new ArrayList<Integer>();
+		
+		cm.getPreparedStatement("getPlayersOnTeam").setInt(1, teamid);
+		ResultSet rs = cm.executePreparedQuery("getPlayersOnTeam");
+		if (rs.first()) {
+			do {
+				ret.add(rs.getInt("id"));
 			} while (rs.next());
 		}
 		
