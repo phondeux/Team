@@ -53,6 +53,8 @@ public class Team extends JavaPlugin{
         	th = new TeamHandler(this, cm);
         	log.info("[Team] Initializing EventHandler..");
         	eh = new EventHandler(this, cm);
+        	log.info("[Team] Initializing StatsHandler..");
+        	sh = new StatsHandler(this, cm);
         } catch (SQLException e) {
         	e.printStackTrace();
         	log.severe("[Team] Initialization failed due to SQLException!");
