@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class TeamPlayerListener extends PlayerListener {
 	public Team team;
@@ -29,6 +30,7 @@ public class TeamPlayerListener extends PlayerListener {
 		// Fetch team motd
 		//  - Don't display motd if it's empty
 		try {
+			team.eh.CreateEvent().PlayerConnect(pID);
 			tMOTD = team.th.teamGetMotd(team.th.playerGetTeam(pID));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -37,5 +39,13 @@ public class TeamPlayerListener extends PlayerListener {
 			player.sendMessage(tMOTD);
 		}
 		// check if player has invites and display them as well as a short 'how to join a team' message
+	}
+	
+	public void onPlayerQuit(final PlayerQuitEvent event) {
+		try {
+			team.eh.CreateEvent().PlayerDisonnect(team.th.playerGetID(event.getPlayer().getName()));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

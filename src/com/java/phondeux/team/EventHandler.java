@@ -12,7 +12,7 @@ public class EventHandler {
 	
 	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose,
 					  PlayerJoin, PlayerLeave, PlayerDeath, PlayerInvite,
-					  PlayerDeinvite, TeamMotd, PlayerKicked};
+					  PlayerDeinvite, TeamMotd, PlayerKicked, PlayerConnect, PlayerDisconnect};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -50,6 +50,10 @@ public class EventHandler {
 		cm.prepareStatement("newEventTeamMotd", "insert into events (type, parent, child, data) values (9, ?, ?, ?);");
 		//Parent: player id, child: team id, data: kicker id
 		cm.prepareStatement("newEventPlayerKicked", "insert into events (type, parent, child, data) values (10, ?, ?, ?);");
+		//Parent: player id
+		cm.prepareStatement("newEventPlayerConnect", "insert into events (type, parent) values (11, ?);");
+		//Parent: player id
+		cm.prepareStatement("newEventPlayerDisconnect", "insert into events (type, parent) values (12, ?);");
 	}
 	
 	public interface EventCallback {
@@ -156,6 +160,18 @@ public class EventHandler {
 			cm.getPreparedStatement("newEventPlayerKicked").setInt(2, teamid);
 			cm.getPreparedStatement("newEventPlayerKicked").setString(3, kicker.toString());
 			cm.executePreparedUpdate("newEventPlayerKicked");
+		}
+		
+		public void PlayerConnect(int playerid) throws SQLException {
+			DoCallback(Type.PlayerConnect, playerid, 0, null);
+			cm.getPreparedStatement("newEventPlayerConnect").setInt(1, playerid);
+			cm.executePreparedUpdate("newEventPlayerConnect");
+		}
+		
+		public void PlayerDisonnect(int playerid) throws SQLException {
+			DoCallback(Type.PlayerDisconnect, playerid, 0, null);
+			cm.getPreparedStatement("newEventPlayerDisconnect").setInt(1, playerid);
+			cm.executePreparedUpdate("newEventPlayerDisconnect");
 		}
 	}
 }
