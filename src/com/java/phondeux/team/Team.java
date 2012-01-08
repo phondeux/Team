@@ -19,6 +19,7 @@ public class Team extends JavaPlugin{
 	protected ConnectionManager cm;
 	protected TeamHandler th;
 	public EventHandler eh;
+	protected StatsHandler sh;
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
 	private final TeamEntityListener entityListener = new TeamEntityListener(this);
@@ -82,7 +83,7 @@ public class Team extends JavaPlugin{
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamSendToMembers(child, data);
+				th.teamSendToMembers(child, TeamUtils.formatTeam(sh.GetTeamStats(child), data));
 			}
 		}, EventHandler.Type.TeamMotd);
 		
