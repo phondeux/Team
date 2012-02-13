@@ -90,6 +90,7 @@ public class TeamCommand implements CommandExecutor {
 					for (String m : members) {
 						plugin.th.playerSetStatus(plugin.th.playerGetID(m), 0);
 						plugin.th.playerSetTeam(plugin.th.playerGetID(m), 0);
+						plugin.getServer().getPlayer(m).setDisplayName(plugin.getServer().getPlayer(m).getPlayerListName());
 					}
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
@@ -212,6 +213,7 @@ public class TeamCommand implements CommandExecutor {
 					plugin.th.playerSetStatus(pID, 1);
 					plugin.th.playerSetTeam(pID, teamid);
 					plugin.eh.CreateEvent().PlayerJoin(pID, teamid);
+					player.setDisplayName(teamname + " " + player.getName());
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
@@ -232,6 +234,8 @@ public class TeamCommand implements CommandExecutor {
 					plugin.eh.CreateEvent().PlayerLeave(pID, pTeamID);
 					plugin.th.playerSetStatus(pID, 0);
 					plugin.th.playerSetTeam(pID, 0);
+
+					player.setDisplayName(player.getPlayerListName());
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();

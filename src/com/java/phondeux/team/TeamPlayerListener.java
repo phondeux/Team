@@ -7,6 +7,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+@SuppressWarnings("deprecation")
 public class TeamPlayerListener extends PlayerListener {
 	public Team team;
 
@@ -39,6 +40,15 @@ public class TeamPlayerListener extends PlayerListener {
 			player.sendMessage(tMOTD);
 		}
 		// check if player has invites and display them as well as a short 'how to join a team' message
+		// pre-pend players team name to their chat name
+		// Also, pre-pend the team tag (up to eight characters) to their display name
+		try {
+			if (team.th.playerGetTeam(pID) != 0){
+				player.setDisplayName(team.th.teamGetName(team.th.playerGetTeam(pID)) + " " + player.getName());
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void onPlayerQuit(final PlayerQuitEvent event) {
