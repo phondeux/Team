@@ -71,6 +71,7 @@ public class TeamCommand implements CommandExecutor {
 					plugin.th.playerSetTeam(pID, teamid);
 					plugin.th.playerSetStatus(pID, 3);
 					plugin.eh.CreateEvent().TeamCreate(pID, teamid);
+					player.setDisplayName(args[1] + " " + player.getName());
 				} catch (SQLException e) {
 					player.sendMessage("Database error.");
 					e.printStackTrace();
