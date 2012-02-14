@@ -9,6 +9,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.java.phondeux.team.StatsHandler.PlayerStats;
+import com.java.phondeux.team.StatsHandler.PlayerStats.PlayerDeath;
+import com.java.phondeux.team.StatsHandler.PlayerStats.PlayerKill;
+
 public class TeamCommand implements CommandExecutor {
 	private final Team plugin;
 	
@@ -79,7 +83,7 @@ public class TeamCommand implements CommandExecutor {
 				
 				return true;
 			}
-			if (args[0].matches("disband")) {
+			else if (args[0].matches("disband")) {
 				if (pStatus != 3) {
 					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
@@ -99,7 +103,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("invite")) {
+			else if (args[0].matches("invite")) {
 				if (args.length < 2) {
 					player.sendMessage("No player specified.");
 					return true;
@@ -121,7 +125,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("deinvite")) {
+			else if (args[0].matches("deinvite")) {
 				if (args.length < 2) {
 					player.sendMessage("No player specified.");
 					return true;
@@ -147,7 +151,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("setmotd")) {
+			else if (args[0].matches("setmotd")) {
 				if (args.length < 2) {
 					player.sendMessage("No motd specified.");
 					return true;
@@ -169,7 +173,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("description")) {
+			else if (args[0].matches("description")) {
 				if (args.length < 2) {
 					player.sendMessage("No description specified.");
 					return true;
@@ -191,7 +195,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("join")) {
+			else if (args[0].matches("join")) {
 				if (args.length < 2) {
 					player.sendMessage("No team specified.");
 					return true;
@@ -221,7 +225,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("leave")) {
+			else if (args[0].matches("leave")) {
 				if (pStatus == 0) {
 					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
@@ -243,7 +247,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("kick")) {
+			else if (args[0].matches("kick")) {
 				if (args.length < 2) {
 					player.sendMessage("No player specified.");
 					return true;
@@ -274,7 +278,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("open")) {
+			else if (args[0].matches("open")) {
 				if (pStatus != 3) {
 					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
@@ -293,7 +297,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("close")) {
+			else if (args[0].matches("close")) {
 				if (pStatus != 3) {
 					player.sendMessage("Either you aren't on a team, or you aren't the owner.");
 					return true;
@@ -312,13 +316,13 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("promote")) {
+			else if (args[0].matches("promote")) {
 				return true;
 			}
-			if (args[0].matches("demote")) {
+			else if (args[0].matches("demote")) {
 				return true;
 			}
-			if (args[0].matches("chat")) {
+			else if (args[0].matches("chat")) {
 				if (pStatus == 0) {
 					player.sendMessage("You aren't on a team, chat is defaulted to global.");
 					return true;
@@ -333,7 +337,7 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
-			if (args[0].matches("who")) {
+			else if (args[0].matches("who")) {
 				try {
 					ArrayList<String> tmp = plugin.th.teamGetList();
 					for (String s : tmp) {
@@ -354,12 +358,59 @@ public class TeamCommand implements CommandExecutor {
 				}
 				return true;
 			}
+			else if (args[0].equals("playerinfo")) {
+				if (args.length != 2) {
+					player.sendMessage("No player specified.");
+					return true;
+				}
+				if (!plugin.th.playerExists(args[1])) {
+					player.sendMessage("The player '" + args[1] + "' doesn't exist.");
+					return true;
+				}
+				int infopid = plugin.th.playerGetID(args[1]);
+				int infotid = 0;
+				PlayerStats infop_stats = plugin.sh.GetPlayerStats(infopid);
+				try {
+					infotid = plugin.th.playerGetTeam(infopid);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return true;
+				}
+				
+				String infop_kdratio = "Infinite";
+				if (infop_stats.NumDeaths() > 0) {
+					infop_kdratio = String.format("%1$,.2f", (double) infop_stats.NumKills() / (double) infop_stats.NumPvpDeaths());
+				}
+				
+				player.sendMessage("--- " + plugin.th.playerGetName(infopid) + " ---");
+				if (infotid != 0) player.sendMessage("Team: " + plugin.th.teamGetName(infotid));
+				player.sendMessage("[PvP] Kills: " + infop_stats.NumKills() + ", deaths: " + infop_stats.NumPvpDeaths()
+						+ ", K/D: " + infop_kdratio);
+				if (!plugin.getServer().getPlayer(args[1]).isOnline()) player.sendMessage("Last online: " + infop_stats.LastLogin().toString());
+				
+				player.sendMessage("--- Most recent events ---");
+				for (int line = 0; line < 4; line++) {
+					Object event = infop_stats.Event(line);
+					if (event instanceof PlayerKill) {
+						PlayerKill pk = (PlayerKill) event;
+						if (pk.victimid == null) break;
+						
+						player.sendMessage("#PvpKill: Killed " + plugin.th.playerGetName(pk.victimid) + " with " + pk.data);
+					} else if (event instanceof PlayerDeath) {
+						PlayerDeath pd = (PlayerDeath) event;
+						if (pd.killerid == null) break;
+						
+						if (pd.pvp) player.sendMessage("#PvpDeath: Killed by " + plugin.th.playerGetName(pd.killerid) + " with " + pd.data);
+						else player.sendMessage("#Death: " + pd.data);
+					}
+				}
+			}
 		} else {
 			// Return a simple two/three column list of commands and how to get a full list
 			//    ie /team help #
 			player.sendMessage("Usage: /team [command]");
 			player.sendMessage(ChatColor.RED + "create    disband    kick");
-			player.sendMessage(ChatColor.RED + "invite    open       close");
+			player.sendMessage(ChatColor.RED + "invite    open       close     playerinfo");
 			player.sendMessage(ChatColor.RED + "deinvite  promote    demote    setmotd");
 			player.sendMessage(ChatColor.RED + "join      leave      chat      who");
 			player.sendMessage(ChatColor.RED + "help - " + ChatColor.WHITE + "for details on each");

@@ -23,7 +23,9 @@ public class StatsHandler {
 		cm.prepareStatement("statsPlayerDeath", "select * from events where type=6 and child=? order by id desc limit ?, 1;");
 		cm.prepareStatement("statsPlayerPvpDeath", "select * from events where type=6 and parent!=0 and child=? order by id desc limit ?, 1;");
 		cm.prepareStatement("statsPlayerKill", "select * from events where type=6 and parent=? order by id desc limit ?, 1;");
+		cm.prepareStatement("statsPlayerEvent", "select * from events where type=6 and (parent=? or child=?) order by id desc limit ?, 1;");
 		cm.prepareStatement("statsPlayerLastLogin", "select * from events where type=11 and parent=? order by id desc limit 0, 1;");
+		cm.prepareStatement("statsEvent", "select * from events where id=?;");
 	}
 	
 	public PlayerStats GetPlayerStats(Integer id) {
@@ -94,10 +96,9 @@ public class StatsHandler {
 		
 		/**
 		 * Get the last time this player logged in
-		 * @return the Date of the last login, or null if the player is online
+		 * @return the Date of the last login
 		 */
 		public Date LastLogin() {
-			if (parent.getServer().getPlayer(parent.th.playerGetName(id)).isOnline()) return null;
 			Date date = null;
 			
 			try {
@@ -143,19 +144,59 @@ public class StatsHandler {
 			return ret.data == null ? null : ret;
 		}
 		
+		/**
+		 * Get detailed information on an event (kill, death, pvpdeath)
+		 * @param num the number of the event, where 0 is the most recent
+		 * @return a PlayerKill or PlayerDeath event
+		 */
+		public Object Event(Integer num) {
+			int eventid = 0;
+			try {
+				cm.getPreparedStatement("statsPlayerEvent").setInt(1, id);
+				cm.getPreparedStatement("statsPlayerEvent").setInt(2, id);
+				ResultSet rs = cm.executePreparedQuery("statsPlayerEvent");
+				if (!rs.first()) return null;
+				eventid = rs.getInt("id");
+				if (rs.getInt("parent") != id) { //if the killer isnt the player
+					return new PlayerDeath(eventid);
+				} else {
+					return new PlayerKill(eventid, true);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
 		protected class PlayerDeath {
 			public Integer killerid = null;
 			public String data = null;
 			public Date timestamp = null;
+			public boolean pvp = false;
 			
 			public PlayerDeath(Integer num, boolean pvp) {
 				try {
+					this.pvp = pvp;
 					String query = pvp ? "statsPlayerPvpDeath" : "statsPlayerDeath";
 					cm.getPreparedStatement(query).setInt(1, id);
 					cm.getPreparedStatement(query).setInt(2, num);
 					ResultSet rs = cm.executePreparedQuery(query);
 					if (!rs.first()) return;
 					killerid = rs.getInt("parent");
+					data = rs.getString("data");
+					timestamp = rs.getTimestamp("timestamp");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			public PlayerDeath(Integer eventid) {
+				try {
+					cm.getPreparedStatement("statsEvent").setInt(1, eventid);
+					ResultSet rs = cm.executePreparedQuery("statsEvent");
+					if (!rs.first()) return;
+					killerid = rs.getInt("parent");
+					if (killerid != 0) pvp = true;
 					data = rs.getString("data");
 					timestamp = rs.getTimestamp("timestamp");
 				} catch (SQLException e) {
@@ -174,6 +215,19 @@ public class StatsHandler {
 					cm.getPreparedStatement("statsPlayerKill").setInt(1, id);
 					cm.getPreparedStatement("statsPlayerKill").setInt(2, num);
 					ResultSet rs = cm.executePreparedQuery("statsPlayerKill");
+					if (!rs.first()) return;
+					victimid = rs.getInt("child");
+					data = rs.getString("data");
+					timestamp = rs.getTimestamp("timestamp");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			public PlayerKill(Integer eventid, boolean dummy) {
+				try {
+					cm.getPreparedStatement("statsEvent").setInt(1, eventid);
+					ResultSet rs = cm.executePreparedQuery("statsEvent");
 					if (!rs.first()) return;
 					victimid = rs.getInt("child");
 					data = rs.getString("data");
