@@ -154,7 +154,7 @@ public class StatsHandler {
 			try {
 				cm.getPreparedStatement("statsPlayerEvent").setInt(1, id);
 				cm.getPreparedStatement("statsPlayerEvent").setInt(2, id);
-				cm.getPreparedStatement("statsPlayerEvent").setInt(3, id);
+				cm.getPreparedStatement("statsPlayerEvent").setInt(3, num);
 				ResultSet rs = cm.executePreparedQuery("statsPlayerEvent");
 				if (!rs.first()) return null;
 				eventid = rs.getInt("id");

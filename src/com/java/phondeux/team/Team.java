@@ -122,6 +122,7 @@ public class Team extends JavaPlugin{
 			}
 		}, EventHandler.Type.PlayerKicked);
 		
+		/*
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
 				if (parent != 0) {
@@ -131,5 +132,6 @@ public class Team extends JavaPlugin{
 				}
 			}
 		}, EventHandler.Type.PlayerDeath);
+		*/
 	}
 }
