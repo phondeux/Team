@@ -388,7 +388,7 @@ public class TeamCommand implements CommandExecutor {
 				if (infotid != 0) player.sendMessage("Team: " + plugin.th.teamGetName(infotid));
 				player.sendMessage("[PvP] Kills: " + infop_stats.NumKills() + ", deaths: " + infop_stats.NumPvpDeaths()
 						+ ", K/D: " + infop_kdratio);
-				if (!plugin.getServer().getPlayer(args[1]).isOnline()) player.sendMessage("Last online: " + infop_stats.LastLogin().toString());
+				if (plugin.getServer().getPlayer(args[1]) == null) player.sendMessage("Last online: " + infop_stats.LastLogin().toString());
 				
 				player.sendMessage("--- Most recent events ---");
 				for (int line = 0; line < 4; line++) {
