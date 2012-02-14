@@ -53,11 +53,11 @@ public class TeamPlayerListener extends PlayerListener {
 	}
 	
 	public void onPlayerChat(final PlayerChatEvent event) {
-		Integer pID = team.th.playerGetID(event.getPlayer().getName());
+//		Integer pID = team.th.playerGetID(event.getPlayer().getName());
 		
 		// Is player in team chat mode?
 		if (team.th.teamChatter.contains(event.getPlayer().getName())) {
-			
+//			team.th.playersGetNameOnTeam(pID);
 		}
 	}
 	
