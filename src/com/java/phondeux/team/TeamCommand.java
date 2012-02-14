@@ -319,6 +319,18 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			if (args[0].matches("chat")) {
+				if (pStatus == 0) {
+					player.sendMessage("You aren't on a team, chat is defaulted to global.");
+					return true;
+				} else {
+					if (plugin.th.teamChatter.contains(player.getName())) {
+						plugin.th.teamChatter.remove(player.getName());
+						player.sendMessage("Team Chat disabled");
+					} else {
+						plugin.th.teamChatter.add(player.getName());
+						player.sendMessage("Team Chat enabled");
+					}
+				}
 				return true;
 			}
 			if (args[0].matches("who")) {

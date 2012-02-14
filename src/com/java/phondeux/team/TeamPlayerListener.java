@@ -3,6 +3,7 @@ package com.java.phondeux.team;
 import java.sql.SQLException;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -48,6 +49,15 @@ public class TeamPlayerListener extends PlayerListener {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void onPlayerChat(final PlayerChatEvent event) {
+		Integer pID = team.th.playerGetID(event.getPlayer().getName());
+		
+		// Is player in team chat mode?
+		if (team.th.teamChatter.contains(event.getPlayer().getName())) {
+			
 		}
 	}
 	

@@ -29,6 +29,7 @@ public class Team extends JavaPlugin{
 		System.out.println("[team] disabled");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
@@ -39,6 +40,7 @@ public class Team extends JavaPlugin{
 		pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
 		pm.registerEvent(Event.Type.ENTITY_DEATH, this.entityListener, Event.Priority.Monitor, this);
 		pm.registerEvent(Event.Type.ENTITY_DAMAGE, this.entityListener, Event.Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLAYER_CHAT, this.playerListener, Event.Priority.Normal, this);
 
 		initialize();
 		

@@ -12,12 +12,14 @@ public class TeamHandler {
 	private final ConnectionManager cm;
 	private HashMap<String, Integer> idbindteam;
 	private HashMap<String, Integer> idbindplayer;
+	public ArrayList<String> teamChatter;
 	
 	public TeamHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
 		this.cm = cm;
 		idbindteam = new HashMap<String, Integer>();
 		idbindplayer = new HashMap<String, Integer>();
+		teamChatter = new ArrayList<String>();
 		initTables();
 		initStatements();
 		populateMap();
