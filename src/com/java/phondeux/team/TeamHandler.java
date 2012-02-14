@@ -309,7 +309,7 @@ public class TeamHandler {
 		
 		cm.getPreparedStatement("getTeamMotd").setInt(1, id);
 		ResultSet rs = cm.executePreparedQuery("getTeamMotd");
-		rs.first();
+		if (!rs.first()) return null;
 		String motd = rs.getString("data");
 		rs.close();
 		return motd;
