@@ -377,9 +377,11 @@ public class TeamCommand implements CommandExecutor {
 					return true;
 				}
 				
-				String infop_kdratio = "Infinite";
-				if (infop_stats.NumDeaths() > 0) {
+				String infop_kdratio = "0.00";
+				if (infop_stats.NumPvpDeaths() > 0) {
 					infop_kdratio = String.format("%1$,.2f", (double) infop_stats.NumKills() / (double) infop_stats.NumPvpDeaths());
+				} else if (infop_stats.NumKills() > 0) {
+					infop_kdratio = "Infinite";
 				}
 				
 				player.sendMessage("--- " + plugin.th.playerGetName(infopid) + " ---");
