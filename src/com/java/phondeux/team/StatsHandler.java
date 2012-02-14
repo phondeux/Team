@@ -105,7 +105,8 @@ public class StatsHandler {
 				cm.getPreparedStatement("statsPlayerLastLogin").setInt(1, id);
 				ResultSet rs = cm.executePreparedQuery("statsPlayerLastLogin");
 				if (!rs.first()) return null;
-				date = rs.getDate("timestamp");
+				date = rs.getTimestamp("timestamp");
+//				date = rs.getDate("timestamp");
 				rs.close();
 			} catch (SQLException e) {
 				e.printStackTrace();

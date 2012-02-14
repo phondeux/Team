@@ -391,7 +391,7 @@ public class TeamCommand implements CommandExecutor {
 						+ ", K/D: " + infop_kdratio);
 				
 				if (plugin.getServer().getPlayer(args[1]) == null) {
-					SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss dd-mm-yyyy");
+					SimpleDateFormat formatter = new SimpleDateFormat("kk:mm:ss dd MMM yyyy");
 					player.sendMessage("Last online: " + formatter.format(infop_stats.LastLogin()));
 				}
 				
