@@ -1,6 +1,7 @@
 package com.java.phondeux.team;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
@@ -388,7 +389,11 @@ public class TeamCommand implements CommandExecutor {
 				if (infotid != 0) player.sendMessage("Team: " + plugin.th.teamGetName(infotid));
 				player.sendMessage("[PvP] Kills: " + infop_stats.NumKills() + ", deaths: " + infop_stats.NumPvpDeaths()
 						+ ", K/D: " + infop_kdratio);
-				if (plugin.getServer().getPlayer(args[1]) == null) player.sendMessage("Last online: " + infop_stats.LastLogin().toString());
+				
+				if (plugin.getServer().getPlayer(args[1]) == null) {
+					SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss dd-mm-yyyy");
+					player.sendMessage("Last online: " + formatter.format(infop_stats.LastLogin()));
+				}
 				
 				player.sendMessage("--- Most recent events ---");
 				for (int line = 0; line < 4; line++) {
