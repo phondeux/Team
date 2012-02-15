@@ -53,11 +53,16 @@ public class TeamPlayerListener extends PlayerListener {
 	}
 	
 	public void onPlayerChat(final PlayerChatEvent event) {
-//		Integer pID = team.th.playerGetID(event.getPlayer().getName());
-		
-		// Is player in team chat mode?
-		if (team.th.teamChatter.contains(event.getPlayer().getName())) {
-//			team.th.playersGetNameOnTeam(pID);
+		Integer pID = team.th.playerGetID(event.getPlayer().getName());
+		Integer teamID = 0;
+		try {
+			teamID = team.th.playerGetTeam(pID);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (team.th.teamChatter.contains(pID) && teamID != 0) {
+			team.th.teamSendToMembers(teamID, event.getPlayer().getName() + ": " + event.getMessage());
+			event.setCancelled(true);
 		}
 	}
 	
