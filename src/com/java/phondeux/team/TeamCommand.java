@@ -49,7 +49,7 @@ public class TeamCommand implements CommandExecutor {
 			e.printStackTrace();
 			return true;
 		}
-		if (command.getName() == "team") {
+		if (command.getName().equals("team")) {
 			if (args.length > 0) {
 				if (args[0].matches("create")) {
 					if (args.length < 2) {
@@ -426,7 +426,7 @@ public class TeamCommand implements CommandExecutor {
 				return true;
 			}
 			return true;
-		} else if (command.getName() == "tc") {
+		} else if (command.getName().equals("tc")) {
 			if (pTeamID == 0) {
 				player.sendMessage("You must be on a team to use teamchat.");
 			} else if (args.length == 0) {
