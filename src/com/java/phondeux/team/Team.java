@@ -122,16 +122,10 @@ public class Team extends JavaPlugin{
 			}
 		}, EventHandler.Type.PlayerKicked);
 		
-		/*
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				if (parent != 0) {
-					getServer().broadcastMessage(th.playerGetName(parent) + ChatColor.GOLD + " killed " + ChatColor.WHITE + th.playerGetName(child) + ChatColor.GOLD + ", data: " + data);
-				} else {
-					getServer().broadcastMessage(th.playerGetName(child) + ChatColor.GOLD + " was killed, data: " + data);
-				}
+				th.teamChatter.remove(parent);
 			}
 		}, EventHandler.Type.PlayerDeath);
-		*/
 	}
 }
