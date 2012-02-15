@@ -61,7 +61,9 @@ public class TeamPlayerListener extends PlayerListener {
 			e.printStackTrace();
 		}
 		if (team.th.teamChatter.contains(pID) && teamID != 0) {
+			String teamName = team.th.teamGetName(teamID);
 			team.th.teamSendToMembers(teamID, event.getPlayer().getName() + ": " + event.getMessage());
+			team.log.info("TC : " + teamName + " : " + event.getPlayer().getName() + " " + event.getMessage());
 			event.setCancelled(true);
 		}
 	}

@@ -23,6 +23,8 @@ public class Team extends JavaPlugin{
 	
 	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
 	private final TeamEntityListener entityListener = new TeamEntityListener(this);
+	
+	private final TeamCommand teamCommand = new TeamCommand(this);
 
 	@Override
 	public void onDisable() {
@@ -33,7 +35,8 @@ public class Team extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
-		getCommand("team").setExecutor(new TeamCommand(this));
+		getCommand("team").setExecutor(teamCommand);
+		getCommand("tc").setExecutor(teamCommand);
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);

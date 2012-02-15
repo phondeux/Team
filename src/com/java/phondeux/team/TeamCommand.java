@@ -437,6 +437,8 @@ public class TeamCommand implements CommandExecutor {
 					msg += part + " ";
 				}
 				plugin.th.teamSendToMembers(pTeamID, player.getName() + ": " + msg.trim());
+				String teamName = plugin.th.teamGetName(pTeamID);
+				plugin.log.info("TC : " + teamName + " : " + player.getName() + " " + msg.trim());
 			}
 			return true;
 		}
