@@ -127,7 +127,7 @@ public class Team extends JavaPlugin{
 		
 		eh.RegisterCallback(new EventHandler.EventCallback() {
 			public void run(int parent, int child, String data) {
-				th.teamChatter.remove(parent);
+				if (th.teamChatter.contains(parent)) th.teamChatter.remove(parent);
 			}
 		}, EventHandler.Type.PlayerDeath);
 	}
