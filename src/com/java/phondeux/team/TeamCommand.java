@@ -414,15 +414,48 @@ public class TeamCommand implements CommandExecutor {
 						}
 					}
 				}
+				else if (args[0].matches("help")) {
+					if (args.length != 2) {
+						player.sendMessage("Please use /team help # where the number is 1 or 2.");
+						return true;
+					}
+					if (args.length < 2) {
+						player.sendMessage("Usage: /team [command]");
+						player.sendMessage(ChatColor.RED + "create, disband, kick, invite, deinvite, open, close");
+						player.sendMessage(ChatColor.RED + "playerinfo, promote, demote, join, leave, chat");
+						player.sendMessage(ChatColor.RED + "setmotd, who, help");
+						return true;
+					}
+					if (args[1] == "1") {
+						player.sendMessage(ChatColor.RED + "create [teamname] - " + ChatColor.WHITE + "Creates a team, limit of 8 characters for team name");
+						player.sendMessage(ChatColor.RED + "disband - " + ChatColor.WHITE + "Disbands a team.");
+						player.sendMessage(ChatColor.RED + "kick [playername] - " + ChatColor.WHITE + "Kicks a player from a team");
+						player.sendMessage(ChatColor.RED + "invite [playername] - " + ChatColor.WHITE + "Invites a player to join a team");
+						player.sendMessage(ChatColor.RED + "deinvite [playername] - " + ChatColor.WHITE + "Removed invitation for a player to join a team");
+						player.sendMessage(ChatColor.RED + "open - " + ChatColor.WHITE + "Allows any player to join the team without invitation");
+						player.sendMessage(ChatColor.RED + "close - " + ChatColor.WHITE + "Requires players to be invited to join the team");
+						player.sendMessage(ChatColor.RED + "chat - " + ChatColor.WHITE + "Toggles players chat to between team-only and global.");
+					}
+					if (args[1] == "2") {
+						player.sendMessage(ChatColor.RED + "playerinfo [playername] - " + ChatColor.WHITE + "Provides stats on playername");
+						player.sendMessage(ChatColor.RED + "promote [playername] - " + ChatColor.WHITE + "Raises a playername in rank");
+						player.sendMessage(ChatColor.RED + "demote [playername] - " + ChatColor.WHITE + "Lowers a playername in rank");
+						player.sendMessage(ChatColor.RED + "join [teamname] - " + ChatColor.WHITE + "Adds you to teamname if it's open or you've been invited");
+						player.sendMessage(ChatColor.RED + "leave - " + ChatColor.WHITE + "Removes you from a team");
+						player.sendMessage(ChatColor.RED + "setmotd - " + ChatColor.WHITE + "Sets the team message of the day");
+						player.sendMessage(ChatColor.RED + "who - " + ChatColor.WHITE + "Lists all teams and their membership");
+						player.sendMessage(ChatColor.RED + "help [#]- " + ChatColor.WHITE + "This help which you're reading");
+					}
+					return true;
+				}
+
 			} else {
 				// Return a simple two/three column list of commands and how to get a full list
 				//    ie /team help #
 				player.sendMessage("Usage: /team [command]");
-				player.sendMessage(ChatColor.RED + "create    disband    kick");
-				player.sendMessage(ChatColor.RED + "invite    open       close     playerinfo");
-				player.sendMessage(ChatColor.RED + "deinvite  promote    demote    setmotd");
-				player.sendMessage(ChatColor.RED + "join      leave      chat      who");
-				player.sendMessage(ChatColor.RED + "help - " + ChatColor.WHITE + "for details on each");
+				player.sendMessage(ChatColor.RED + "create, disband, kick, invite, deinvite, open, close");
+				player.sendMessage(ChatColor.RED + "playerinfo, promote, demote, join, leave, chat");
+				player.sendMessage(ChatColor.RED + "setmotd, who, help");
 				return true;
 			}
 			return true;

@@ -12,7 +12,7 @@ public class EventHandler {
 	
 	public enum Type {TeamCreate, TeamDisband, TeamOpen, TeamClose,
 					  PlayerJoin, PlayerLeave, PlayerDeath, PlayerInvite,
-					  PlayerDeinvite, TeamMotd, PlayerKicked, PlayerConnect, PlayerDisconnect};
+					  PlayerDeinvite, TeamMotd, PlayerKicked, PlayerConnect, PlayerDisconnect, HomeSet, HomeDelete};
 	
 	public EventHandler(Team parent, ConnectionManager cm) throws SQLException {
 		this.parent = parent;
@@ -54,6 +54,10 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerConnect", "insert into events (type, parent) values (11, ?);");
 		//Parent: player id
 		cm.prepareStatement("newEventPlayerDisconnect", "insert into events (type, parent) values (12, ?);");
+		//Parent: player id
+		cm.prepareStatement("newHomeSet", "insert into events (type, parent, child, data) values (13, ?, ?, ?);");
+		//Parent: player id
+		cm.prepareStatement("newHomeDelete", "insert into events (type, parent) values (14, ?);");
 	}
 	
 	public interface EventCallback {
@@ -172,6 +176,13 @@ public class EventHandler {
 			DoCallback(Type.PlayerDisconnect, playerid, 0, null);
 			cm.getPreparedStatement("newEventPlayerDisconnect").setInt(1, playerid);
 			cm.executePreparedUpdate("newEventPlayerDisconnect");
+		}
+
+		public void homeSet(int playerid, String loc) throws SQLException {
+			DoCallback(Type.HomeSet, playerid, 0, loc);
+			cm.getPreparedStatement("newHomeSet").setInt(1, playerid);
+			cm.getPreparedStatement("newHomeSet").setString(2, loc);
+			cm.executePreparedUpdate("newHomeSet");
 		}
 	}
 }
