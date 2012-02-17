@@ -192,6 +192,8 @@ public class TeamCommand implements CommandExecutor {
 					}
 					try {
 						plugin.th.teamSetDescription(pTeamID, descr);
+						plugin.getServer().broadcastMessage(ChatColor.GOLD + player.getName() + " updated their team description:");
+						plugin.getServer().broadcastMessage(ChatColor.WHITE + descr);
 					} catch (SQLException e) {
 						player.sendMessage("Database error.");
 						e.printStackTrace();
