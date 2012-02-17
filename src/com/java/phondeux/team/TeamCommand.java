@@ -426,24 +426,24 @@ public class TeamCommand implements CommandExecutor {
 						player.sendMessage(ChatColor.RED + "setmotd, who, help");
 						return true;
 					}
-					if (args[1] == "1") {
-						player.sendMessage(ChatColor.RED + "create [teamname] - " + ChatColor.WHITE + "Creates a team, limit of 8 characters for team name");
+					if (args[1].matches("1")) {
+						player.sendMessage(ChatColor.RED + "create [teamname] - " + ChatColor.WHITE + "Create a team, max 8 character name");
 						player.sendMessage(ChatColor.RED + "disband - " + ChatColor.WHITE + "Disbands a team.");
 						player.sendMessage(ChatColor.RED + "kick [playername] - " + ChatColor.WHITE + "Kicks a player from a team");
 						player.sendMessage(ChatColor.RED + "invite [playername] - " + ChatColor.WHITE + "Invites a player to join a team");
-						player.sendMessage(ChatColor.RED + "deinvite [playername] - " + ChatColor.WHITE + "Removed invitation for a player to join a team");
-						player.sendMessage(ChatColor.RED + "open - " + ChatColor.WHITE + "Allows any player to join the team without invitation");
-						player.sendMessage(ChatColor.RED + "close - " + ChatColor.WHITE + "Requires players to be invited to join the team");
-						player.sendMessage(ChatColor.RED + "chat - " + ChatColor.WHITE + "Toggles players chat to between team-only and global.");
+						player.sendMessage(ChatColor.RED + "deinvite [playername] - " + ChatColor.WHITE + "Removes team invitation");
+						player.sendMessage(ChatColor.RED + "open - " + ChatColor.WHITE + "Sets team to allow anyone to join");
+						player.sendMessage(ChatColor.RED + "close - " + ChatColor.WHITE + "Sets team to invite-only");
+						player.sendMessage(ChatColor.RED + "chat - " + ChatColor.WHITE + "Toggles chat between team-only and global.");
 					}
-					if (args[1] == "2") {
+					if (args[1].matches("2")) {
 						player.sendMessage(ChatColor.RED + "playerinfo [playername] - " + ChatColor.WHITE + "Provides stats on playername");
-						player.sendMessage(ChatColor.RED + "promote [playername] - " + ChatColor.WHITE + "Raises a playername in rank");
-						player.sendMessage(ChatColor.RED + "demote [playername] - " + ChatColor.WHITE + "Lowers a playername in rank");
-						player.sendMessage(ChatColor.RED + "join [teamname] - " + ChatColor.WHITE + "Adds you to teamname if it's open or you've been invited");
+						player.sendMessage(ChatColor.RED + "promote [playername] - " + ChatColor.WHITE + "Raises a player in rank");
+						player.sendMessage(ChatColor.RED + "demote [playername] - " + ChatColor.WHITE + "Lowers a player in rank");
+						player.sendMessage(ChatColor.RED + "join [teamname] - " + ChatColor.WHITE + "Join a team");
 						player.sendMessage(ChatColor.RED + "leave - " + ChatColor.WHITE + "Removes you from a team");
-						player.sendMessage(ChatColor.RED + "setmotd - " + ChatColor.WHITE + "Sets the team message of the day");
-						player.sendMessage(ChatColor.RED + "who - " + ChatColor.WHITE + "Lists all teams and their membership");
+						player.sendMessage(ChatColor.RED + "setmotd - " + ChatColor.WHITE + "Read the team message of the day");
+						player.sendMessage(ChatColor.RED + "who - " + ChatColor.WHITE + "Lists all teams and members");
 						player.sendMessage(ChatColor.RED + "help [#]- " + ChatColor.WHITE + "This help which you're reading");
 					}
 					return true;

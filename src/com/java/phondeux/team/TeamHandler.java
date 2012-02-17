@@ -50,7 +50,7 @@ public class TeamHandler {
 		cm.prepareStatement("getTeam", "select * from teams where id=?;");
 		cm.prepareStatement("getTeamAll", "select * from teams;");
 		cm.prepareStatement("deleteTeam", "delete from teams where id=?;");
-		cm.prepareStatement("setTeamDescription", "update teams set desc=? where id=?;");
+		cm.prepareStatement("setTeamDescription", "update teams set descr=? where id=?;");
 		cm.prepareStatement("getTeamDescription", "select descr from teams where id=?;");
 		cm.prepareStatement("getTeamMotd", "select * from events where type=9 and child=? order by id desc limit 0, 1;");
 		cm.prepareStatement("getTeamList", "select name from teams;");
@@ -113,7 +113,7 @@ public class TeamHandler {
 		try {
 			ArrayList<String> members = playersGetNameOnTeam(id);
 			for (String m : members) {
-				if (parent.getServer().getPlayer(m).isOnline()) {
+				if (parent.getServer().getPlayer(m) != null) {
 					parent.getServer().getPlayer(m).sendMessage(prefix + msg);
 				}
 			}
