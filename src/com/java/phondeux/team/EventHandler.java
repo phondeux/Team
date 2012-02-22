@@ -54,7 +54,7 @@ public class EventHandler {
 		cm.prepareStatement("newEventPlayerConnect", "insert into events (type, parent) values (11, ?);");
 		//Parent: player id
 		cm.prepareStatement("newEventPlayerDisconnect", "insert into events (type, parent) values (12, ?);");
-		//Parent: player id
+		//Parent: player id, child: null, data: location xx|yy|zz
 		cm.prepareStatement("newHomeSet", "insert into events (type, parent, child, data) values (13, ?, ?, ?);");
 		//Parent: player id
 		cm.prepareStatement("newHomeDelete", "insert into events (type, parent) values (14, ?);");
