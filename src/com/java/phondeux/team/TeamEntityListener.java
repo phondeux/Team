@@ -3,13 +3,14 @@ package com.java.phondeux.team;
 import java.sql.SQLException;
 
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityListener;
 
-@SuppressWarnings("deprecation")
-public class TeamEntityListener extends EntityListener {
+public class TeamEntityListener implements Listener {
 	public Team parent;
 
 	public TeamEntityListener(Team team) {
@@ -84,6 +85,7 @@ public class TeamEntityListener extends EntityListener {
 		return msg;
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity() instanceof Player) {
 			EntityDamageEvent cause = event.getEntity().getLastDamageCause();

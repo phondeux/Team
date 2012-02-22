@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,9 +20,6 @@ public class Team extends JavaPlugin{
 	public EventHandler eh;
 	protected StatsHandler sh;
 	
-	private final TeamPlayerListener playerListener = new TeamPlayerListener(this);
-	private final TeamEntityListener entityListener = new TeamEntityListener(this);
-	
 	private final TeamCommand teamCommand = new TeamCommand(this);
 
 	@Override
@@ -31,7 +27,6 @@ public class Team extends JavaPlugin{
 		System.out.println("[team] disabled");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
@@ -39,12 +34,10 @@ public class Team extends JavaPlugin{
 		getCommand("tc").setExecutor(teamCommand);
 
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Event.Type.ENTITY_DEATH, this.entityListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Event.Type.ENTITY_DAMAGE, this.entityListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLAYER_CHAT, this.playerListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_RESPAWN, this.playerListener, Event.Priority.Normal, this);
+		final TeamPlayerListener playerListener = new TeamPlayerListener(this);
+		final TeamEntityListener entityListener = new TeamEntityListener(this);
+		pm.registerEvents(playerListener, this);
+		pm.registerEvents(entityListener, this);
 
 		initialize();
 		
